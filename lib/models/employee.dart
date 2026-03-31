@@ -17,7 +17,7 @@ extension MoraleLevelExtension on MoraleLevel {
 }
 
 class Employee {
-  static const maxMoralChecks = 10;
+  static const maxMoralChecks = 18;
 
   static const roles = [
     'Abogado',

@@ -83,6 +83,10 @@ void main() {
       expect(same.experience, ExperienceLevel.veteran);
     });
 
+    test('el máximo de marcas de moral es 18', () {
+      expect(Employee.maxMoralChecks, 18);
+    });
+
     test('moralChecks no puede superar el máximo', () {
       final employee = Employee(id: 1, moralChecks: Employee.maxMoralChecks);
 
