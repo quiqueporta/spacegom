@@ -26,17 +26,17 @@ class GameState {
   }
 
   static final _defaultCrew = [
-    Employee(id: 1, name: 'Widaker Farq', salary: 20, experience: ExperienceLevel.experienced, morale: MoraleLevel.high),
-    Employee(id: 2, name: 'Samantha Warm', salary: 15, experience: ExperienceLevel.experienced, morale: MoraleLevel.medium),
-    Employee(id: 3, name: 'Thomas Muller', salary: 4, experience: ExperienceLevel.beginner, morale: MoraleLevel.medium),
-    Employee(id: 4, name: 'Walter Lopez', salary: 8, experience: ExperienceLevel.beginner, morale: MoraleLevel.medium),
-    Employee(id: 5, name: 'Jeffrey Cook', salary: 8, experience: ExperienceLevel.experienced, morale: MoraleLevel.medium),
-    Employee(id: 6, name: 'Danielle Rivers', salary: 10, experience: ExperienceLevel.experienced, morale: MoraleLevel.medium),
-    Employee(id: 7, name: 'Isaac Peterson', salary: 1, experience: ExperienceLevel.beginner, morale: MoraleLevel.high),
-    Employee(id: 8, name: 'Katherine Smith', salary: 3, experience: ExperienceLevel.experienced, morale: MoraleLevel.high),
-    Employee(id: 9, name: 'Jason Wilson', salary: 3, experience: ExperienceLevel.experienced, morale: MoraleLevel.medium),
-    Employee(id: 10, name: 'Sam Hernández', salary: 3, experience: ExperienceLevel.experienced, morale: MoraleLevel.medium),
-    Employee(id: 11, name: 'Alexandra Adams', salary: 1, experience: ExperienceLevel.experienced, morale: MoraleLevel.medium),
+    Employee(id: 1, name: 'Widaker Farq', role: 'Director gerente', salary: 20, experience: ExperienceLevel.experienced, morale: MoraleLevel.high),
+    Employee(id: 2, name: 'Samantha Warm', role: 'Comandante de hipersaltos', salary: 15, experience: ExperienceLevel.experienced, morale: MoraleLevel.medium),
+    Employee(id: 3, name: 'Thomas Muller', role: 'Ingeniero computacional', salary: 4, experience: ExperienceLevel.beginner, morale: MoraleLevel.medium),
+    Employee(id: 4, name: 'Walter Lopez', role: 'Ingeniero astronavegación', salary: 8, experience: ExperienceLevel.beginner, morale: MoraleLevel.medium),
+    Employee(id: 5, name: 'Jeffrey Cook', role: 'Técnico de repostaje y análisis de combustibles', salary: 8, experience: ExperienceLevel.experienced, morale: MoraleLevel.medium),
+    Employee(id: 6, name: 'Danielle Rivers', role: 'Piloto', salary: 10, experience: ExperienceLevel.experienced, morale: MoraleLevel.medium),
+    Employee(id: 7, name: 'Isaac Peterson', role: 'Operario de logística y almacén', salary: 1, experience: ExperienceLevel.beginner, morale: MoraleLevel.high),
+    Employee(id: 8, name: 'Katherine Smith', role: 'Responsable de contabilidad y burocracia', salary: 3, experience: ExperienceLevel.experienced, morale: MoraleLevel.high),
+    Employee(id: 9, name: 'Jason Wilson', role: 'Responsable de suministros de manutención', salary: 3, experience: ExperienceLevel.experienced, morale: MoraleLevel.medium),
+    Employee(id: 10, name: 'Sam Hernández', role: 'Cocinero', salary: 3, experience: ExperienceLevel.experienced, morale: MoraleLevel.medium),
+    Employee(id: 11, name: 'Alexandra Adams', role: 'Asistente doméstico', salary: 1, experience: ExperienceLevel.experienced, morale: MoraleLevel.medium),
   ];
 
   GameState copyWith({
