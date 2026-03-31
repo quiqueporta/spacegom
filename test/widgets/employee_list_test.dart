@@ -42,6 +42,22 @@ void main() {
       expect(find.text('Ingeniero'), findsOneWidget);
     });
 
+    testWidgets('muestra el rol en grande y el nombre debajo', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        employees: [
+          Employee(id: 1, name: 'Ana', role: 'Piloto', salary: 5),
+        ],
+      ));
+
+      final roleText = tester.widget<Text>(find.text('Piloto'));
+      final nameText = tester.widget<Text>(find.text('Ana'));
+
+      expect(roleText.style!.fontWeight, FontWeight.bold);
+      expect(roleText.style!.fontSize, 13);
+      expect(nameText.style!.fontSize, 11);
+      expect(nameText.style!.color, const Color(0xFF8B949E));
+    });
+
     testWidgets('muestra la experiencia del empleado', (tester) async {
       await tester.pumpWidget(buildTestable(
         employees: [

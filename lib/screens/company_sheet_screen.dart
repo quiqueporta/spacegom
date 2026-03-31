@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:spacegom_companion/models/company.dart';
+import 'package:spacegom_companion/models/treasury.dart';
 import 'package:spacegom_companion/models/employee.dart';
 import 'package:spacegom_companion/models/life_support.dart';
 import 'package:spacegom_companion/models/ship.dart';
@@ -40,6 +41,7 @@ class _CompanySheetScreenState extends State<CompanySheetScreen> {
   late List<Employee> _employees;
   late List<Weapon> _weapons;
   late Map<String, int> _lifeSupportEquipment;
+  late Treasury _treasury;
 
   Ship get _activeShip => _ships[_activeShipIndex];
 
@@ -61,6 +63,7 @@ class _CompanySheetScreenState extends State<CompanySheetScreen> {
     _employees = List.from(c.employees);
     _weapons = List.from(c.weapons);
     _lifeSupportEquipment = Map.from(c.lifeSupportEquipment);
+    _treasury = c.treasury;
   }
 
   Company _buildCompany() {
@@ -78,6 +81,7 @@ class _CompanySheetScreenState extends State<CompanySheetScreen> {
       employees: List.from(_employees),
       weapons: List.from(_weapons),
       lifeSupportEquipment: Map.from(_lifeSupportEquipment),
+      treasury: _treasury,
     );
   }
 

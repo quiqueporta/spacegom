@@ -264,8 +264,8 @@ class _BoardScreenState extends State<BoardScreen> {
   Widget _buildArrowButton(IconData icon, VoidCallback onPressed) {
     return IconButton(
       onPressed: onPressed,
-      icon: Icon(icon, color: const Color(0xFF484F58), size: 28),
-      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+      icon: Icon(icon, color: const Color(0xFF484F58), size: 40),
+      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
       padding: EdgeInsets.zero,
     );
   }

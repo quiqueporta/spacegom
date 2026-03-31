@@ -12,12 +12,7 @@ class AreaGrid extends StatelessWidget {
   static const _borderColor = Color(0xFF30363D);
   static const _cellColor = Color(0xFF0D1B2A);
 
-  static const _typeColors = {
-    LocationType.world: Color(0xFF8B949E),
-    LocationType.spaceport: Color(0xFF58A6FF),
-    LocationType.orbitalStation: Color(0xFFBC8CFF),
-    LocationType.hyperjump: Color(0xFFE8B830),
-  };
+  static const _starColor = Color(0xFF8B949E);
 
   const AreaGrid({
     super.key,
@@ -99,9 +94,6 @@ class AreaGrid extends StatelessWidget {
   Widget _buildCell(int row, int col, double size) {
     final cellData = cells[(row, col)];
     final isShipHere = shipPosition == (row, col);
-    final borderColor = cellData != null && !cellData.isDeepSpace
-        ? _typeColors[cellData.locationType] ?? _borderColor
-        : _borderColor;
 
     return GestureDetector(
       onTap: () => onCellTap(row, col),
@@ -111,10 +103,7 @@ class AreaGrid extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           color: _cellColor,
-          border: Border.all(
-            color: cellData != null && !cellData.isDeepSpace ? borderColor : _borderColor,
-            width: cellData != null && !cellData.isDeepSpace ? 1.5 : 0.5,
-          ),
+          border: Border.all(color: _borderColor, width: 0.5),
         ),
         child: Stack(
           alignment: Alignment.center,
@@ -130,13 +119,7 @@ class AreaGrid extends StatelessWidget {
               ),
 
             if (cellData != null && cellData.isDeepSpace)
-              Text(
-                '✦',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: const Color(0xFF30363D),
-                ),
-              ),
+              ..._buildStarField(row, col, size),
 
             if (cellData != null && !cellData.isDeepSpace) ...[
               Container(
@@ -187,5 +170,33 @@ class AreaGrid extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildStarField(int row, int col, double size) {
+    final seed = row * 7 + col * 13;
+    const stars = ['✦', '·', '∗', '·', '✦'];
+    const positions = [
+      (0.2, 0.3),
+      (0.7, 0.15),
+      (0.45, 0.55),
+      (0.15, 0.75),
+      (0.75, 0.7),
+    ];
+    final count = 3 + (seed % 3);
+
+    return [
+      for (var i = 0; i < count; i++)
+        Positioned(
+          left: positions[(i + seed) % positions.length].$1 * size,
+          top: positions[(i + seed) % positions.length].$2 * size,
+          child: Text(
+            stars[(i + seed) % stars.length],
+            style: TextStyle(
+              fontSize: 6.0 + (((i + seed) * 3) % 5),
+              color: _starColor,
+            ),
+          ),
+        ),
+    ];
   }
 }

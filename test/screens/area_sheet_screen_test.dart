@@ -63,6 +63,92 @@ void main() {
       expect(find.text('MIRA'), findsWidgets);
     });
 
+    testWidgets('muestra unidades compradas en la tarjeta de operación', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: AreaSheetScreen(
+          area: 1,
+          sheet: AreaSheet(
+            trades: [
+              TradeRecord(purchaseWorld: '333', productCode: 'MIRA', purchaseUnits: 10, purchaseAmount: 130),
+            ],
+          ),
+          onChanged: (_) {},
+        ),
+      ));
+
+      expect(find.textContaining('10 uds'), findsOneWidget);
+    });
+
+    testWidgets('muestra icono verificado cuando tiene trazabilidad', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: AreaSheetScreen(
+          area: 1,
+          sheet: AreaSheet(
+            trades: [
+              TradeRecord(productCode: 'MIRA', traceability: true),
+            ],
+          ),
+          onChanged: (_) {},
+        ),
+      ));
+
+      expect(find.byIcon(Icons.verified), findsOneWidget);
+    });
+
+    testWidgets('muestra icono X cuando no tiene trazabilidad', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: AreaSheetScreen(
+          area: 1,
+          sheet: AreaSheet(
+            trades: [
+              TradeRecord(productCode: 'MIRA', traceability: false),
+            ],
+          ),
+          onChanged: (_) {},
+        ),
+      ));
+
+      expect(find.byIcon(Icons.close), findsOneWidget);
+    });
+
+    testWidgets('muestra operación inutilizada con texto tachado', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: AreaSheetScreen(
+          area: 1,
+          sheet: AreaSheet(
+            trades: [
+              TradeRecord(productCode: 'MIRA', purchaseAmount: 130, voided: true),
+            ],
+          ),
+          onChanged: (_) {},
+        ),
+      ));
+
+      expect(find.text('INUTILIZADA'), findsOneWidget);
+
+      final productText = tester.widget<Text>(find.text('MIRA').first);
+      expect(productText.style!.decoration, TextDecoration.lineThrough);
+    });
+
+    testWidgets('formulario de edición muestra toggle de inutilizada', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: AreaSheetScreen(
+          area: 1,
+          sheet: AreaSheet(
+            trades: [
+              TradeRecord(productCode: 'MIRA', purchaseAmount: 130),
+            ],
+          ),
+          onChanged: (_) {},
+        ),
+      ));
+
+      await tester.tap(find.text('MIRA').first);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Inutilizada'), findsOneWidget);
+    });
+
     testWidgets('muestra tabla de productos de referencia', (tester) async {
       await tester.pumpWidget(MaterialApp(
         home: AreaSheetScreen(

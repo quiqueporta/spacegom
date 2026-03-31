@@ -42,22 +42,26 @@ class SpecialMission {
 class TradeRecord {
   final String purchaseWorld;
   final String productCode;
+  final int purchaseUnits;
   final int purchaseAmount;
   final String purchaseDate;
   final String saleWorld;
   final int saleAmount;
   final String saleDate;
   final bool traceability;
+  final bool voided;
 
   const TradeRecord({
     this.purchaseWorld = '',
     this.productCode = '',
+    this.purchaseUnits = 0,
     this.purchaseAmount = 0,
     this.purchaseDate = '',
     this.saleWorld = '',
     this.saleAmount = 0,
     this.saleDate = '',
     this.traceability = false,
+    this.voided = false,
   });
 
   int get profit => saleAmount - purchaseAmount;
@@ -65,23 +69,27 @@ class TradeRecord {
   Map<String, dynamic> toJson() => {
     'purchaseWorld': purchaseWorld,
     'productCode': productCode,
+    'purchaseUnits': purchaseUnits,
     'purchaseAmount': purchaseAmount,
     'purchaseDate': purchaseDate,
     'saleWorld': saleWorld,
     'saleAmount': saleAmount,
     'saleDate': saleDate,
     'traceability': traceability,
+    'voided': voided,
   };
 
   factory TradeRecord.fromJson(Map<String, dynamic> json) => TradeRecord(
     purchaseWorld: json['purchaseWorld'] as String? ?? '',
     productCode: json['productCode'] as String? ?? '',
+    purchaseUnits: json['purchaseUnits'] as int? ?? 0,
     purchaseAmount: json['purchaseAmount'] as int? ?? 0,
     purchaseDate: json['purchaseDate'] as String? ?? '',
     saleWorld: json['saleWorld'] as String? ?? '',
     saleAmount: json['saleAmount'] as int? ?? 0,
     saleDate: json['saleDate'] as String? ?? '',
     traceability: json['traceability'] as bool? ?? false,
+    voided: json['voided'] as bool? ?? false,
   );
 }
 

@@ -29,6 +29,7 @@ void main() {
       final trade = TradeRecord(
         purchaseWorld: '333',
         productCode: 'MIRA',
+        purchaseUnits: 10,
         purchaseAmount: 130,
         purchaseDate: '10/02/01',
         saleWorld: '445',
@@ -42,10 +43,32 @@ void main() {
 
       expect(restored.purchaseWorld, '333');
       expect(restored.productCode, 'MIRA');
+      expect(restored.purchaseUnits, 10);
       expect(restored.purchaseAmount, 130);
       expect(restored.saleWorld, '445');
       expect(restored.saleAmount, 300);
       expect(restored.traceability, true);
+    });
+
+    test('purchaseUnits tiene valor por defecto 0', () {
+      final trade = TradeRecord(productCode: 'ALIM');
+
+      expect(trade.purchaseUnits, 0);
+    });
+
+    test('voided tiene valor por defecto false', () {
+      final trade = TradeRecord(productCode: 'ALIM');
+
+      expect(trade.voided, false);
+    });
+
+    test('toJson y fromJson preservan voided', () {
+      final trade = TradeRecord(productCode: 'MIRA', voided: true);
+
+      final json = trade.toJson();
+      final restored = TradeRecord.fromJson(json);
+
+      expect(restored.voided, true);
     });
 
     test('profit se calcula automáticamente', () {

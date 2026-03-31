@@ -59,7 +59,7 @@ class EmployeeList extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      employee.name.isEmpty ? '—' : employee.name,
+                      employee.role.isEmpty ? '—' : employee.role,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -67,11 +67,14 @@ class EmployeeList extends StatelessWidget {
                       ),
                     ),
 
-                    if (employee.role.isNotEmpty)
-                      Text(
-                        employee.role,
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF8B949E)),
+                    Text(
+                      employee.name.isEmpty ? '—' : employee.name,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: const Color(0xFF8B949E),
+                        decoration: isGone ? TextDecoration.lineThrough : null,
                       ),
+                    ),
                   ],
                 ),
               ),

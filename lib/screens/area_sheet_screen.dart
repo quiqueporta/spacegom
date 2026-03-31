@@ -215,11 +215,14 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
     final hasSale = trade.saleAmount > 0 || trade.saleWorld.isNotEmpty;
     final profitColor = trade.profit >= 0 ? const Color(0xFF2EA043) : const Color(0xFFDA3633);
     final prefix = trade.profit >= 0 ? '+' : '';
+    final isVoided = trade.voided;
+    final strikethrough = isVoided ? TextDecoration.lineThrough : null;
 
     return GestureDetector(
       onTap: () => _showTradeDialog(index: index),
       onLongPress: () => _deleteTrade(index),
       child: Card(
+        color: isVoided ? const Color(0xFF1C2333).withValues(alpha: 0.5) : null,
         child: Padding(
           padding: const EdgeInsets.all(8),
           child: Column(
@@ -229,21 +232,32 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                 children: [
                   Text(
                     trade.productCode.isEmpty ? '—' : trade.productCode,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF58A6FF)),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF58A6FF), decoration: strikethrough),
                   ),
 
                   const Spacer(),
 
-                  if (hasSale)
+                  if (hasSale && !isVoided)
                     Text(
                       '$prefix${trade.profit} SC',
                       style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: profitColor),
                     ),
 
-                  if (trade.traceability) ...[
+                  if (isVoided) ...[
+                    const Text(
+                      'INUTILIZADA',
+                      style: TextStyle(fontSize: 9, color: Color(0xFFDA3633), fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(width: 6),
-                    const Icon(Icons.verified, size: 14, color: Color(0xFF2EA043)),
                   ],
+
+                  const SizedBox(width: 6),
+
+                  Icon(
+                    trade.traceability ? Icons.verified : Icons.close,
+                    size: 14,
+                    color: trade.traceability ? const Color(0xFF2EA043) : const Color(0xFFDA3633),
+                  ),
                 ],
               ),
 
@@ -256,9 +270,12 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text('COMPRA', style: TextStyle(fontSize: 9, color: Color(0xFF8B949E))),
-                        Text('Mundo ${trade.purchaseWorld}  ·  ${trade.purchaseAmount} SC', style: const TextStyle(fontSize: 11)),
+                        Text(
+                          'Mundo ${trade.purchaseWorld}  ·  ${trade.purchaseUnits} uds  ·  ${trade.purchaseAmount} SC',
+                          style: TextStyle(fontSize: 11, decoration: strikethrough),
+                        ),
                         if (trade.purchaseDate.isNotEmpty)
-                          Text(trade.purchaseDate, style: const TextStyle(fontSize: 10, color: Color(0xFF8B949E))),
+                          Text(trade.purchaseDate, style: TextStyle(fontSize: 10, color: const Color(0xFF8B949E), decoration: strikethrough)),
                       ],
                     ),
                   ),
@@ -269,9 +286,9 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                       children: [
                         const Text('VENTA', style: TextStyle(fontSize: 9, color: Color(0xFF8B949E))),
                         if (hasSale) ...[
-                          Text('Mundo ${trade.saleWorld}  ·  ${trade.saleAmount} SC', style: const TextStyle(fontSize: 11)),
+                          Text('Mundo ${trade.saleWorld}  ·  ${trade.saleAmount} SC', style: TextStyle(fontSize: 11, decoration: strikethrough)),
                           if (trade.saleDate.isNotEmpty)
-                            Text(trade.saleDate, style: const TextStyle(fontSize: 10, color: Color(0xFF8B949E))),
+                            Text(trade.saleDate, style: TextStyle(fontSize: 10, color: const Color(0xFF8B949E), decoration: strikethrough)),
                         ] else
                           const Text('—', style: TextStyle(fontSize: 11, color: Color(0xFF8B949E))),
                       ],
@@ -418,6 +435,7 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
     final existing = isEditing ? _trades[index] : null;
 
     final purchaseWorldCtrl = TextEditingController(text: existing?.purchaseWorld ?? '');
+    final purchaseUnitsCtrl = TextEditingController(text: existing != null && existing.purchaseUnits > 0 ? '${existing.purchaseUnits}' : '');
     final purchaseAmountCtrl = TextEditingController(text: existing != null && existing.purchaseAmount > 0 ? '${existing.purchaseAmount}' : '');
     final purchaseDateCtrl = TextEditingController(text: existing?.purchaseDate ?? '');
     final saleWorldCtrl = TextEditingController(text: existing?.saleWorld ?? '');
@@ -425,6 +443,7 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
     final saleDateCtrl = TextEditingController(text: existing?.saleDate ?? '');
     var selectedProduct = existing?.productCode ?? ProductReference.products.first.code;
     var traceability = existing?.traceability ?? false;
+    var voided = existing?.voided ?? false;
 
     showDialog(
       context: context,
@@ -456,6 +475,12 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                   onChanged: (v) {
                     if (v != null) setDialogState(() => selectedProduct = v);
                   },
+                ),
+
+                TextField(
+                  controller: purchaseUnitsCtrl,
+                  decoration: const InputDecoration(labelText: 'Unidades compradas'),
+                  keyboardType: TextInputType.number,
                 ),
 
                 TextField(
@@ -498,6 +523,19 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                     ),
                   ],
                 ),
+
+                if (isEditing)
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text('Inutilizada', style: TextStyle(fontSize: 12)),
+                      ),
+                      Switch(
+                        value: voided,
+                        onChanged: (v) => setDialogState(() => voided = v),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -508,12 +546,14 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                 final trade = TradeRecord(
                   purchaseWorld: purchaseWorldCtrl.text.trim(),
                   productCode: selectedProduct,
+                  purchaseUnits: int.tryParse(purchaseUnitsCtrl.text) ?? 0,
                   purchaseAmount: int.tryParse(purchaseAmountCtrl.text) ?? 0,
                   purchaseDate: purchaseDateCtrl.text.trim(),
                   saleWorld: saleWorldCtrl.text.trim(),
                   saleAmount: int.tryParse(saleAmountCtrl.text) ?? 0,
                   saleDate: saleDateCtrl.text.trim(),
                   traceability: traceability,
+                  voided: voided,
                 );
 
                 setState(() {

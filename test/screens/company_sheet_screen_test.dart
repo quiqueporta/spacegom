@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:spacegom_companion/models/company.dart';
 import 'package:spacegom_companion/models/employee.dart';
+import 'package:spacegom_companion/models/treasury.dart';
 import 'package:spacegom_companion/screens/company_sheet_screen.dart';
 
 Widget buildTestable({Company? initialCompany}) {
@@ -109,6 +110,36 @@ void main() {
       ));
 
       expect(find.textContaining('8 SC'), findsOneWidget);
+    });
+
+    testWidgets('preserva la tesorería al notificar cambios', (tester) async {
+      Company? lastCompany;
+      final treasury = Treasury(
+        transactions: [Transaction(concept: 'Sueldo', amount: -100)],
+      );
+
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: CompanySheetScreen(
+            initialCompany: Company(treasury: treasury),
+            onChanged: (company) => lastCompany = company,
+          ),
+        ),
+      ));
+
+      final plusButtons = find.descendant(
+        of: find.ancestor(
+          of: find.text('COMBUSTIBLE'),
+          matching: find.byType(Column),
+        ).first,
+        matching: find.byIcon(Icons.add),
+      );
+      await tester.tap(plusButtons.last);
+      await tester.pump();
+
+      expect(lastCompany, isNotNull);
+      expect(lastCompany!.treasury.transactions.length, 1);
+      expect(lastCompany!.treasury.transactions.first.concept, 'Sueldo');
     });
 
     testWidgets('muestra empleados existentes', (tester) async {

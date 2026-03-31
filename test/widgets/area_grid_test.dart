@@ -10,6 +10,25 @@ Widget buildTestable(Widget child) {
   );
 }
 
+Border? _findCellBorder(WidgetTester tester, String sectionNumber) {
+  final textFinder = find.text(sectionNumber);
+  final containerAncestor = find.ancestor(
+    of: textFinder,
+    matching: find.byType(Container),
+  );
+
+  for (final element in containerAncestor.evaluate()) {
+    final widget = element.widget as Container;
+    final decoration = widget.decoration;
+
+    if (decoration is BoxDecoration && decoration.border is Border) {
+      return decoration.border as Border;
+    }
+  }
+
+  return null;
+}
+
 void main() {
   group('AreaGrid', () {
     testWidgets('muestra las cabeceras de columna A-F', (tester) async {
@@ -62,6 +81,25 @@ void main() {
 
       expect(tappedRow, isNotNull);
       expect(tappedCol, isNotNull);
+    });
+
+    testWidgets('todas las celdas tienen el mismo borde', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        AreaGrid(
+          cells: {
+            (1, 1): CellData(sectionNumber: 111, locationType: LocationType.world),
+            (1, 2): CellData(sectionNumber: 222, locationType: LocationType.spaceport),
+          },
+          onCellTap: (_, __) {},
+        ),
+      ));
+
+      final border111 = _findCellBorder(tester, '111');
+      final border222 = _findCellBorder(tester, '222');
+
+      expect(border111!.top.width, 0.5);
+      expect(border222!.top.width, 0.5);
+      expect(border111.top.color, border222.top.color);
     });
 
     testWidgets('llama onCellLongPress al mantener pulsada una celda', (tester) async {
