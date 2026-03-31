@@ -11,6 +11,16 @@ App Android complementaria para [Spacegom](https://sites.google.com/view/spacego
 
 Digitaliza las hojas de registro en papel del juego (ficha de compañía, tablero de cuadrantes, calendario de campaña, tesorería y hojas de área) en una app móvil.
 
+## Capturas de pantalla
+
+| Tablero | Compañía | Plantilla |
+|:---:|:---:|:---:|
+| ![Tablero](screenshots/tablero.png) | ![Compañía](screenshots/compania.png) | ![Plantilla](screenshots/plantilla.png) |
+
+| Tesorería | Dados | Calendario |
+|:---:|:---:|:---:|
+| ![Tesorería](screenshots/tesoreria.png) | ![Dados](screenshots/dados.png) | ![Calendario](screenshots/calendario.png) |
+
 ## Requisitos
 
 - Flutter SDK
