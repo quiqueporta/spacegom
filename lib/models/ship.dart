@@ -1,4 +1,5 @@
 class Ship {
+  final String name;
   final String model;
   final int hyperjumpCapacity;
   final int rollModifier;
@@ -9,6 +10,7 @@ class Ship {
   final int severeSupport;
 
   const Ship({
+    this.name = '',
     this.model = '',
     this.hyperjumpCapacity = 0,
     this.rollModifier = 0,
@@ -20,6 +22,7 @@ class Ship {
   });
 
   Ship copyWith({
+    String? name,
     String? model,
     int? hyperjumpCapacity,
     int? rollModifier,
@@ -30,6 +33,7 @@ class Ship {
     int? severeSupport,
   }) {
     return Ship(
+      name: name ?? this.name,
       model: model ?? this.model,
       hyperjumpCapacity: hyperjumpCapacity ?? this.hyperjumpCapacity,
       rollModifier: rollModifier ?? this.rollModifier,
@@ -42,6 +46,7 @@ class Ship {
   }
 
   Map<String, dynamic> toJson() => {
+    'name': name,
     'model': model,
     'hyperjumpCapacity': hyperjumpCapacity,
     'rollModifier': rollModifier,
@@ -53,6 +58,7 @@ class Ship {
   };
 
   factory Ship.fromJson(Map<String, dynamic> json) => Ship(
+    name: json['name'] as String? ?? '',
     model: json['model'] as String? ?? '',
     hyperjumpCapacity: json['hyperjumpCapacity'] as int? ?? 0,
     rollModifier: json['rollModifier'] as int? ?? 0,

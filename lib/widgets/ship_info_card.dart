@@ -52,9 +52,9 @@ class ShipInfoCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildTextField(
-                    'MODELO ASTRONAVE (${activeIndex + 1}/$shipCount)',
-                    ship.model,
-                    (v) => onShipChanged(ship.copyWith(model: v)),
+                    'NOMBRE NAVE (${activeIndex + 1}/$shipCount)',
+                    ship.name,
+                    (v) => onShipChanged(ship.copyWith(name: v)),
                   ),
                 ),
 
@@ -74,6 +74,14 @@ class ShipInfoCard extends StatelessWidget {
               ],
             ),
 
+            const SizedBox(height: 8),
+
+            _buildTextField(
+              'MODELO',
+              ship.model,
+              (v) => onShipChanged(ship.copyWith(model: v)),
+            ),
+
             const SizedBox(height: 12),
 
             Row(
@@ -89,6 +97,7 @@ class ShipInfoCard extends StatelessWidget {
                   child: _buildNumberField(
                     'MOD. TIRADAS', ship.rollModifier,
                     (v) => onShipChanged(ship.copyWith(rollModifier: v)),
+                    showZero: true,
                   ),
                 ),
               ],
@@ -163,8 +172,9 @@ class ShipInfoCard extends StatelessWidget {
   Widget _buildNumberField(
     String label,
     int value,
-    ValueChanged<int> onChanged,
-  ) {
+    ValueChanged<int> onChanged, {
+    bool showZero = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -181,7 +191,7 @@ class ShipInfoCard extends StatelessWidget {
         const SizedBox(height: 2),
 
         TextFormField(
-          initialValue: value == 0 ? '' : '$value',
+          initialValue: value == 0 && !showZero ? '' : '$value',
           style: const TextStyle(fontSize: 14),
           keyboardType: TextInputType.number,
           decoration: InputDecoration(

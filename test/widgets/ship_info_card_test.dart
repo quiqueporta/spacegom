@@ -23,7 +23,8 @@ void main() {
       ));
 
       expect(find.text('COMPAÑÍA'), findsOneWidget);
-      expect(find.textContaining('MODELO ASTRONAVE'), findsOneWidget);
+      expect(find.textContaining('NOMBRE NAVE'), findsOneWidget);
+      expect(find.text('MODELO'), findsOneWidget);
       expect(find.text('HIPERSALTO'), findsOneWidget);
       expect(find.text('MOD. TIRADAS'), findsOneWidget);
       expect(find.text('PASAJEROS'), findsOneWidget);

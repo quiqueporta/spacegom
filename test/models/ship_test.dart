@@ -6,6 +6,7 @@ void main() {
   group('Ship', () {
     test('toJson y fromJson round-trip', () {
       final ship = Ship(
+        name: 'Millennium Falcon',
         model: 'Clase B',
         hyperjumpCapacity: 3,
         rollModifier: 1,
@@ -19,6 +20,7 @@ void main() {
       final json = ship.toJson();
       final restored = Ship.fromJson(json);
 
+      expect(restored.name, 'Millennium Falcon');
       expect(restored.model, 'Clase B');
       expect(restored.hyperjumpCapacity, 3);
       expect(restored.rollModifier, 1);
@@ -32,9 +34,22 @@ void main() {
     test('valores por defecto', () {
       final ship = Ship();
 
+      expect(ship.name, '');
       expect(ship.model, '');
       expect(ship.hyperjumpCapacity, 0);
       expect(ship.lightSupport, 0);
+    });
+
+    test('fromJson sin nombre mantiene compatibilidad', () {
+      final json = {
+        'model': 'Clase A',
+        'hyperjumpCapacity': 2,
+      };
+
+      final restored = Ship.fromJson(json);
+
+      expect(restored.name, '');
+      expect(restored.model, 'Clase A');
     });
 
     test('copyWith cambia solo los campos indicados', () {

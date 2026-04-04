@@ -178,13 +178,13 @@ class _CompanySheetScreenState extends State<CompanySheetScreen> with AutomaticK
                     ? const Icon(Icons.rocket_launch, size: 20, color: Color(0xFF2EA043))
                     : const Icon(Icons.rocket_launch_outlined, size: 20, color: Color(0xFF8B949E)),
                 title: Text(
-                  _ships[i].model.isEmpty ? 'Nave ${i + 1} (sin nombre)' : _ships[i].model,
+                  _ships[i].name.isEmpty ? 'Nave ${i + 1} (sin nombre)' : _ships[i].name,
                   style: TextStyle(
                     fontWeight: i == _activeShipIndex ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
                 subtitle: Text(
-                  'Hipersalto: ${_ships[i].hyperjumpCapacity}',
+                  _ships[i].model.isEmpty ? '—' : _ships[i].model,
                   style: const TextStyle(fontSize: 11, color: Color(0xFF8B949E)),
                 ),
                 onTap: () {
