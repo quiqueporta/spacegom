@@ -101,6 +101,8 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
           _buildTypeIndicators(),
 
           _buildCurrentPlanetInfo(),
+
+          _buildAreaPlanets(),
         ],
       ),
     );
@@ -687,6 +689,113 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
               child: const Text('Aceptar'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  static const _productCodes = ['INDU', 'BASI', 'ALIM', 'MADE', 'AGUA', 'MICO', 'MIRA', 'MIPR', 'PAVA', 'A', 'AE', 'AEI', 'COM'];
+
+  Widget _buildAreaPlanets() {
+    final cells = _areaCells[_shipArea];
+    if (cells == null) return const SizedBox.shrink();
+
+    final planets = <int, Planet>{};
+    for (final cell in cells.values) {
+      if (cell.isDeepSpace || cell.sectionNumber == null) continue;
+
+      final planet = PlanetDatabase.planets[cell.sectionNumber];
+      if (planet != null) planets[cell.sectionNumber!] = planet;
+    }
+
+    if (planets.isEmpty) return const SizedBox.shrink();
+
+    final currentSection = _areaCells[_shipArea]?[(_shipRow, _shipCol)]?.sectionNumber;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'PLANETAS DEL ÁREA',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF8B949E)),
+          ),
+
+          const SizedBox(height: 6),
+
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: _buildPlanetsProductMatrix(planets, currentSection),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlanetsProductMatrix(Map<int, Planet> planets, int? currentSection) {
+    return Table(
+      defaultColumnWidth: const FixedColumnWidth(28),
+      columnWidths: const {0: IntrinsicColumnWidth()},
+      border: TableBorder.all(color: const Color(0xFF30363D), width: 0.5),
+      children: [
+        TableRow(
+          decoration: const BoxDecoration(color: Color(0xFF1C2333)),
+          children: [
+            _matrixHeader(''),
+            for (final code in _productCodes)
+              _matrixHeader(code),
+          ],
+        ),
+
+        for (final entry in planets.entries)
+          _buildPlanetRow(entry.key, entry.value, entry.key == currentSection),
+      ],
+    );
+  }
+
+  TableRow _buildPlanetRow(int section, Planet planet, bool isCurrent) {
+    return TableRow(
+      decoration: isCurrent
+          ? const BoxDecoration(color: Color(0xFF1A2332))
+          : null,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+          child: Text(
+            '${planet.name} ($section)',
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+              color: isCurrent ? const Color(0xFF58A6FF) : null,
+            ),
+          ),
+        ),
+
+        for (final code in _productCodes)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              child: Text(
+                planet.products.contains(code) ? '●' : '',
+                style: TextStyle(
+                  fontSize: 8,
+                  color: planet.products.contains(code) ? const Color(0xFF2EA043) : const Color(0xFF30363D),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _matrixHeader(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+      child: Center(
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 7, fontWeight: FontWeight.bold, color: Color(0xFF8B949E)),
         ),
       ),
     );

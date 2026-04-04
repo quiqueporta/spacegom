@@ -231,7 +231,7 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
               Row(
                 children: [
                   Text(
-                    trade.productCode.isEmpty ? '—' : trade.productCode,
+                    _productLabel(trade.productCode),
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF58A6FF), decoration: strikethrough),
                   ),
 
@@ -365,6 +365,14 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
       padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 2),
       child: Text(text, style: TextStyle(fontSize: 10, fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
     );
+  }
+
+  String _productLabel(String code) {
+    if (code.isEmpty) return '—';
+
+    final info = ProductReference.products.where((p) => p.code == code).firstOrNull;
+
+    return info != null ? '$code — ${info.productName}' : code;
   }
 
   void _addMission() {

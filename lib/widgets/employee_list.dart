@@ -100,6 +100,10 @@ class EmployeeList extends StatelessWidget {
 
               _buildMoraleChecks(employee.moralChecks),
 
+              const SizedBox(width: 4),
+
+              _buildRollModifier(employee.rollModifier),
+
               if (isGone) ...[
                 const SizedBox(width: 4),
                 const Text(
@@ -151,6 +155,24 @@ class EmployeeList extends StatelessWidget {
       ),
       child: Center(
         child: Text(label, style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+
+  Widget _buildRollModifier(int modifier) {
+    final label = modifier > 0 ? '+$modifier' : '$modifier';
+    final color = switch (modifier) {
+      > 0 => const Color(0xFF2EA043),
+      < 0 => const Color(0xFFDA3633),
+      _ => const Color(0xFF8B949E),
+    };
+
+    return SizedBox(
+      width: 22,
+      child: Text(
+        label,
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color),
+        textAlign: TextAlign.center,
       ),
     );
   }

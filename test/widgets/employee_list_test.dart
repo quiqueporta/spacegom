@@ -78,6 +78,20 @@ void main() {
       expect(find.text('A'), findsOneWidget);
     });
 
+    testWidgets('muestra el modificador de tirada del empleado', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        employees: [
+          Employee(id: 1, name: 'Ana', experience: ExperienceLevel.veteran, morale: MoraleLevel.high),
+          Employee(id: 2, name: 'Luis', experience: ExperienceLevel.beginner, morale: MoraleLevel.low),
+          Employee(id: 3, name: 'Eva', experience: ExperienceLevel.experienced, morale: MoraleLevel.medium),
+        ],
+      ));
+
+      expect(find.text('+2'), findsOneWidget);
+      expect(find.text('-2'), findsOneWidget);
+      expect(find.text('0'), findsWidgets);
+    });
+
     testWidgets('marca empleado con adiós visualmente', (tester) async {
       await tester.pumpWidget(buildTestable(
         employees: [

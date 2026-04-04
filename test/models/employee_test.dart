@@ -108,5 +108,55 @@ void main() {
       expect(modified.id, 1);
       expect(modified.experience, ExperienceLevel.beginner);
     });
+
+    test('modificador +2 con veterano y moral alta', () {
+      final employee = Employee(
+        id: 1,
+        experience: ExperienceLevel.veteran,
+        morale: MoraleLevel.high,
+      );
+
+      expect(employee.rollModifier, 2);
+    });
+
+    test('modificador -2 con novato y moral baja', () {
+      final employee = Employee(
+        id: 1,
+        experience: ExperienceLevel.beginner,
+        morale: MoraleLevel.low,
+      );
+
+      expect(employee.rollModifier, -2);
+    });
+
+    test('modificador 0 con experimentado y moral media', () {
+      final employee = Employee(
+        id: 1,
+        experience: ExperienceLevel.experienced,
+        morale: MoraleLevel.medium,
+      );
+
+      expect(employee.rollModifier, 0);
+    });
+
+    test('modificador -1 con novato y moral media', () {
+      final employee = Employee(
+        id: 1,
+        experience: ExperienceLevel.beginner,
+        morale: MoraleLevel.medium,
+      );
+
+      expect(employee.rollModifier, -1);
+    });
+
+    test('modificador +1 con veterano y moral media', () {
+      final employee = Employee(
+        id: 1,
+        experience: ExperienceLevel.veteran,
+        morale: MoraleLevel.medium,
+      );
+
+      expect(employee.rollModifier, 1);
+    });
   });
 }

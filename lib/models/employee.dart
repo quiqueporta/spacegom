@@ -67,6 +67,21 @@ class Employee {
     this.dismissed = false,
   });
 
+  int get rollModifier {
+    final experienceMod = switch (experience) {
+      ExperienceLevel.beginner => -1,
+      ExperienceLevel.experienced => 0,
+      ExperienceLevel.veteran => 1,
+    };
+    final moraleMod = switch (morale) {
+      MoraleLevel.low => -1,
+      MoraleLevel.medium => 0,
+      MoraleLevel.high => 1,
+    };
+
+    return experienceMod + moraleMod;
+  }
+
   Employee promoteExperience() {
     if (experience == ExperienceLevel.veteran) return this;
 

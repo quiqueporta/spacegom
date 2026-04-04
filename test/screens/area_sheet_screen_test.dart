@@ -63,6 +63,22 @@ void main() {
       expect(find.text('MIRA'), findsWidgets);
     });
 
+    testWidgets('muestra nombre del producto en la tarjeta de operación', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: AreaSheetScreen(
+          area: 1,
+          sheet: AreaSheet(
+            trades: [
+              TradeRecord(purchaseWorld: '333', productCode: 'MIRA', purchaseAmount: 130),
+            ],
+          ),
+          onChanged: (_) {},
+        ),
+      ));
+
+      expect(find.text('MIRA — Minerales raros'), findsOneWidget);
+    });
+
     testWidgets('muestra unidades compradas en la tarjeta de operación', (tester) async {
       await tester.pumpWidget(MaterialApp(
         home: AreaSheetScreen(
@@ -126,7 +142,7 @@ void main() {
 
       expect(find.text('INUTILIZADA'), findsOneWidget);
 
-      final productText = tester.widget<Text>(find.text('MIRA').first);
+      final productText = tester.widget<Text>(find.text('MIRA — Minerales raros').first);
       expect(productText.style!.decoration, TextDecoration.lineThrough);
     });
 
@@ -143,7 +159,7 @@ void main() {
         ),
       ));
 
-      await tester.tap(find.text('MIRA').first);
+      await tester.tap(find.text('MIRA — Minerales raros').first);
       await tester.pumpAndSettle();
 
       expect(find.text('Inutilizada'), findsOneWidget);

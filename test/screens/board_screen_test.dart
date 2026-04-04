@@ -248,7 +248,7 @@ void main() {
         ),
       ));
 
-      expect(find.text('Chipethea (111)'), findsOneWidget);
+      expect(find.text('Chipethea (111)'), findsWidgets);
     });
 
     testWidgets('no muestra info si la nave está en celda vacía', (tester) async {
@@ -282,9 +282,37 @@ void main() {
         ),
       ));
 
-      expect(find.text('Producto'), findsOneWidget);
-      expect(find.text('%'), findsOneWidget);
-      expect(find.text('INDU'), findsOneWidget);
+      expect(find.text('Producto'), findsWidgets);
+      expect(find.text('%'), findsWidgets);
+      expect(find.text('INDU'), findsWidgets);
+    });
+
+    testWidgets('muestra listado de planetas del área con productos', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          shipRow: 1,
+          shipCol: 1,
+          areaCells: {
+            1: {
+              (1, 1): CellData(sectionNumber: 111),
+              (2, 2): CellData(sectionNumber: 256),
+              (3, 3): CellData.deepSpace(),
+            },
+          },
+        ),
+      ));
+
+      await tester.ensureVisible(find.text('PLANETAS DEL ÁREA'));
+
+      expect(find.text('PLANETAS DEL ÁREA'), findsOneWidget);
+      expect(find.textContaining('Chipethea'), findsWidgets);
+      expect(find.textContaining('Pucolla'), findsWidgets);
+    });
+
+    testWidgets('no muestra listado de planetas si el área está vacía', (tester) async {
+      await tester.pumpWidget(buildTestable());
+
+      expect(find.text('PLANETAS DEL ÁREA'), findsNothing);
     });
   });
 }
