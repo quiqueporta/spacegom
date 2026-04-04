@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0
+
+- Nombre de producto completo en tarjetas de comercio
+- Modificador de tirada en el listado de tripulación (+2 a -2)
+- Matriz de productos por planeta en el tablero (alineada por columnas)
+- Panel de daños unificado: daño y soporte juntos con alerta visual de exceso
+- Campo nombre de nave (compatible con datos existentes)
+- Corregido modificador de tiradas mostrando vacío cuando es 0
+- Nueva pestaña Tripulación (plantilla + armas) separada de la nave
+
 ## 1.3.0
 
 - Dado aleatorio para generar códigos de planeta (3d6) en los diálogos de sección
