@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:spacegom_companion/models/company.dart';
 import 'package:spacegom_companion/models/employee.dart';
+import 'package:spacegom_companion/models/ship.dart';
 import 'package:spacegom_companion/models/treasury.dart';
 import 'package:spacegom_companion/screens/company_sheet_screen.dart';
 
@@ -32,12 +33,35 @@ void main() {
       expect(find.text('REPUTACIÓN'), findsOneWidget);
     });
 
-    testWidgets('muestra las secciones de daños', (tester) async {
+    testWidgets('muestra la sección unificada de daños', (tester) async {
       await tester.pumpWidget(buildTestable());
 
-      expect(find.text('DAÑOS LEVES'), findsOneWidget);
-      expect(find.text('DAÑOS MODERADOS'), findsOneWidget);
-      expect(find.text('DAÑOS GRAVES'), findsOneWidget);
+      expect(find.text('DAÑOS'), findsOneWidget);
+      expect(find.text('LEVES'), findsOneWidget);
+      expect(find.text('MODERADOS'), findsOneWidget);
+      expect(find.text('GRAVES'), findsOneWidget);
+    });
+
+    testWidgets('muestra indicador de exceso cuando daño supera soporte', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialCompany: Company(
+          ships: [Ship(lightSupport: 2)],
+          lightDamage: 3,
+        ),
+      ));
+
+      expect(find.text('3/2'), findsOneWidget);
+    });
+
+    testWidgets('muestra indicador normal cuando daño no supera soporte', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialCompany: Company(
+          ships: [Ship(lightSupport: 3)],
+          lightDamage: 1,
+        ),
+      ));
+
+      expect(find.text('1/3'), findsOneWidget);
     });
 
     testWidgets('incrementar combustible actualiza el valor', (tester) async {

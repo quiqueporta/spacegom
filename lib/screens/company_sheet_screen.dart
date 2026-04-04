@@ -112,11 +112,7 @@ class _CompanySheetScreenState extends State<CompanySheetScreen> with AutomaticK
 
           const SizedBox(height: 16),
 
-          _buildDamageSupport(),
-
-          const SizedBox(height: 16),
-
-          _buildDamage(),
+          _buildDamagePanel(),
 
           const SizedBox(height: 16),
 
@@ -280,98 +276,153 @@ class _CompanySheetScreenState extends State<CompanySheetScreen> with AutomaticK
     });
   }
 
-  Widget _buildDamageSupport() {
+  Widget _buildDamagePanel() {
     final ship = _activeShip;
 
-    return Column(
-      children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: LevelSelector(
-              label: 'SOPORTE LEVES',
-              values: List.generate(6, (i) => i),
-              selectedValue: ship.lightSupport,
-              onChanged: (v) => _updateActiveShip(ship.copyWith(lightSupport: v)),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: Text(
+                'DAÑOS',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+              ),
             ),
-          ),
-        ),
 
-        const SizedBox(height: 4),
-
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: LevelSelector(
-              label: 'SOPORTE MODERADOS',
-              values: List.generate(6, (i) => i),
-              selectedValue: ship.moderateSupport,
-              onChanged: (v) => _updateActiveShip(ship.copyWith(moderateSupport: v)),
+            _buildDamageRow(
+              label: 'LEVES',
+              damage: _lightDamage,
+              support: ship.lightSupport,
+              onDamageChanged: (v) => setState(() { _lightDamage = v; _notifyChanged(); }),
+              onSupportChanged: (v) => _updateActiveShip(ship.copyWith(lightSupport: v)),
             ),
-          ),
-        ),
 
-        const SizedBox(height: 4),
+            const SizedBox(height: 8),
 
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: LevelSelector(
-              label: 'SOPORTE GRAVES',
-              values: List.generate(6, (i) => i),
-              selectedValue: ship.severeSupport,
-              onChanged: (v) => _updateActiveShip(ship.copyWith(severeSupport: v)),
+            _buildDamageRow(
+              label: 'MODERADOS',
+              damage: _moderateDamage,
+              support: ship.moderateSupport,
+              onDamageChanged: (v) => setState(() { _moderateDamage = v; _notifyChanged(); }),
+              onSupportChanged: (v) => _updateActiveShip(ship.copyWith(moderateSupport: v)),
             ),
-          ),
+
+            const SizedBox(height: 8),
+
+            _buildDamageRow(
+              label: 'GRAVES',
+              damage: _severeDamage,
+              support: ship.severeSupport,
+              onDamageChanged: (v) => setState(() { _severeDamage = v; _notifyChanged(); }),
+              onSupportChanged: (v) => _updateActiveShip(ship.copyWith(severeSupport: v)),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildDamage() {
+  Widget _buildDamageRow({
+    required String label,
+    required int damage,
+    required int support,
+    required ValueChanged<int> onDamageChanged,
+    required ValueChanged<int> onSupportChanged,
+  }) {
+    final exceeded = damage > support && support > 0;
+    final statusColor = exceeded ? const Color(0xFFDA3633) : const Color(0xFF2EA043);
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: LevelSelector(
-              label: 'DAÑOS LEVES',
-              values: List.generate(6, (i) => i),
-              selectedValue: _lightDamage,
-              onChanged: (v) => setState(() { _lightDamage = v; _notifyChanged(); }),
-              colorResolver: LevelSelector.damageColor,
+        Row(
+          children: [
+            SizedBox(
+              width: 85,
+              child: Text(
+                label,
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF8B949E)),
+              ),
             ),
-          ),
+
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: statusColor.withValues(alpha: 0.15),
+                border: Border.all(color: statusColor),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                '$damage/$support',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: statusColor),
+              ),
+            ),
+
+            if (exceeded) ...[
+              const SizedBox(width: 6),
+              const Icon(Icons.warning_amber_rounded, size: 16, color: Color(0xFFDA3633)),
+            ],
+          ],
         ),
 
         const SizedBox(height: 4),
 
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: LevelSelector(
-              label: 'DAÑOS MODERADOS',
-              values: List.generate(6, (i) => i),
-              selectedValue: _moderateDamage,
-              onChanged: (v) => setState(() { _moderateDamage = v; _notifyChanged(); }),
-              colorResolver: LevelSelector.damageColor,
-            ),
-          ),
-        ),
+        Row(
+          children: [
+            for (var i = 0; i < 6; i++) ...[
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => onDamageChanged(i),
+                  child: Container(
+                    height: 28,
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.symmetric(horizontal: 1),
+                    decoration: BoxDecoration(
+                      color: i == damage ? LevelSelector.damageColor(i) : Colors.transparent,
+                      border: Border.all(
+                        color: i == damage ? LevelSelector.damageColor(i) : const Color(0xFF30363D),
+                      ),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      '$i',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: i == damage ? FontWeight.bold : FontWeight.normal,
+                        color: i == damage ? Colors.white : const Color(0xFF8B949E),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
 
-        const SizedBox(height: 4),
+            const SizedBox(width: 6),
 
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: LevelSelector(
-              label: 'DAÑOS GRAVES',
-              values: List.generate(6, (i) => i),
-              selectedValue: _severeDamage,
-              onChanged: (v) => setState(() { _severeDamage = v; _notifyChanged(); }),
-              colorResolver: LevelSelector.damageColor,
+            const Icon(Icons.shield_outlined, size: 14, color: Color(0xFF8B949E)),
+
+            const SizedBox(width: 2),
+
+            SizedBox(
+              width: 40,
+              child: DropdownButton<int>(
+                value: support,
+                isDense: true,
+                underline: const SizedBox.shrink(),
+                items: List.generate(6, (i) => DropdownMenuItem(
+                  value: i,
+                  child: Text('$i', style: const TextStyle(fontSize: 11)),
+                )),
+                onChanged: (v) {
+                  if (v != null) onSupportChanged(v);
+                },
+              ),
             ),
-          ),
+          ],
         ),
       ],
     );
