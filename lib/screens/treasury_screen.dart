@@ -18,7 +18,7 @@ class TreasuryScreen extends StatefulWidget {
   State<TreasuryScreen> createState() => _TreasuryScreenState();
 }
 
-class _TreasuryScreenState extends State<TreasuryScreen> {
+class _TreasuryScreenState extends State<TreasuryScreen> with AutomaticKeepAliveClientMixin {
   static const _maxVisibleTransactions = 5;
 
   late List<Transaction> _transactions;
@@ -43,7 +43,12 @@ class _TreasuryScreenState extends State<TreasuryScreen> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: Column(

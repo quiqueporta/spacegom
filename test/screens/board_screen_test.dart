@@ -181,6 +181,52 @@ void main() {
       expect(lastState!.areaCells[1]?[(1, 1)], isNull);
     });
 
+    testWidgets('diálogo de sección muestra botón de dado aleatorio', (tester) async {
+      await tester.pumpWidget(buildTestable());
+
+      final gridCells = find.descendant(
+        of: find.byType(AreaGrid),
+        matching: find.byType(GestureDetector),
+      );
+      await tester.tap(gridCells.first);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Planeta (sección)'));
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.casino), findsOneWidget);
+    });
+
+    testWidgets('botón de dado rellena el campo con un código válido', (tester) async {
+      await tester.pumpWidget(buildTestable());
+
+      final gridCells = find.descendant(
+        of: find.byType(AreaGrid),
+        matching: find.byType(GestureDetector),
+      );
+      await tester.tap(gridCells.first);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Planeta (sección)'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.casino));
+      await tester.pump();
+
+      final textField = tester.widget<TextField>(find.byType(TextField));
+      final text = textField.controller!.text;
+      final code = int.parse(text);
+      final digits = text.split('').map(int.parse).toList();
+
+      expect(digits.length, 3);
+      for (final digit in digits) {
+        expect(digit, greaterThanOrEqualTo(1));
+        expect(digit, lessThanOrEqualTo(6));
+      }
+      expect(code, greaterThanOrEqualTo(111));
+      expect(code, lessThanOrEqualTo(666));
+    });
+
     testWidgets('muestra la densidad del área en la cabecera', (tester) async {
       await tester.pumpWidget(buildTestable(
         initialState: BoardState(
@@ -189,6 +235,56 @@ void main() {
       ));
 
       expect(find.text('Alta'), findsOneWidget);
+    });
+
+    testWidgets('muestra info del planeta donde está la nave', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          shipRow: 1,
+          shipCol: 1,
+          areaCells: {
+            1: {(1, 1): CellData(sectionNumber: 111)},
+          },
+        ),
+      ));
+
+      expect(find.text('Chipethea (111)'), findsOneWidget);
+    });
+
+    testWidgets('no muestra info si la nave está en celda vacía', (tester) async {
+      await tester.pumpWidget(buildTestable());
+
+      expect(find.textContaining('(111)'), findsNothing);
+    });
+
+    testWidgets('no muestra info si la nave está en espacio profundo', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          shipRow: 1,
+          shipCol: 1,
+          areaCells: {
+            1: {(1, 1): CellData.deepSpace()},
+          },
+        ),
+      ));
+
+      expect(find.textContaining('('), findsNothing);
+    });
+
+    testWidgets('muestra productos con rentabilidad del planeta actual', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          shipRow: 1,
+          shipCol: 1,
+          areaCells: {
+            1: {(1, 1): CellData(sectionNumber: 111)},
+          },
+        ),
+      ));
+
+      expect(find.text('Producto'), findsOneWidget);
+      expect(find.text('%'), findsOneWidget);
+      expect(find.text('INDU'), findsOneWidget);
     });
   });
 }

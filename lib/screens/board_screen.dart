@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:spacegom_companion/models/area_sheet.dart';
 import 'package:spacegom_companion/models/board_state.dart';
 import 'package:spacegom_companion/models/cell_data.dart';
 import 'package:spacegom_companion/models/planet.dart';
@@ -29,7 +30,7 @@ class BoardScreen extends StatefulWidget {
   State<BoardScreen> createState() => _BoardScreenState();
 }
 
-class _BoardScreenState extends State<BoardScreen> {
+class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClientMixin {
   late int _shipArea;
   late int _shipRow;
   late int _shipCol;
@@ -79,7 +80,12 @@ class _BoardScreenState extends State<BoardScreen> {
   bool get _viewingShipArea => _viewingArea == _shipArea;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(8),
       child: Column(
@@ -93,6 +99,8 @@ class _BoardScreenState extends State<BoardScreen> {
           const SizedBox(height: 8),
 
           _buildTypeIndicators(),
+
+          _buildCurrentPlanetInfo(),
         ],
       ),
     );
@@ -502,14 +510,31 @@ class _BoardScreenState extends State<BoardScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (!isDeepSpace) ...[
-                  TextField(
-                    controller: controller,
-                    keyboardType: TextInputType.number,
-                    autofocus: true,
-                    decoration: InputDecoration(
-                      labelText: 'Número de sección',
-                      errorText: errorText,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: controller,
+                          keyboardType: TextInputType.number,
+                          autofocus: true,
+                          decoration: InputDecoration(
+                            labelText: 'Número de sección',
+                            errorText: errorText,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      IconButton(
+                        icon: const Icon(Icons.casino),
+                        tooltip: 'Tirada aleatoria (3d6)',
+                        onPressed: () {
+                          final code = PlanetDatabase.randomSectionNumber();
+                          controller.text = '$code';
+                        },
+                      ),
+                    ],
                   ),
 
                   const SizedBox(height: 12),
@@ -567,7 +592,6 @@ class _BoardScreenState extends State<BoardScreen> {
 
                     _areaCells[_viewingArea]![(row, col)] = CellData(
                       sectionNumber: number,
-                      locationType: cellData.locationType,
                       pirates: pirates,
                       megacorporation: megacorpController.text.trim(),
                     );
@@ -584,15 +608,6 @@ class _BoardScreenState extends State<BoardScreen> {
         ),
       ),
     );
-  }
-
-  String _locationTypeLabel(LocationType type) {
-    return switch (type) {
-      LocationType.world => 'Mundo',
-      LocationType.spaceport => 'Espaciopuerto',
-      LocationType.orbitalStation => 'Instalación orbital',
-      LocationType.hyperjump => 'Hiperdisparo',
-    };
   }
 
   int? _findExistingSection(int sectionNumber) {
@@ -614,14 +629,31 @@ class _BoardScreenState extends State<BoardScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
           title: const Text('Número de sección'),
-          content: TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            autofocus: true,
-            decoration: InputDecoration(
-              hintText: 'Ej: 256',
-              errorText: errorText,
-            ),
+          content: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  keyboardType: TextInputType.number,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: 'Ej: 256',
+                    errorText: errorText,
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              IconButton(
+                icon: const Icon(Icons.casino),
+                tooltip: 'Tirada aleatoria (3d6)',
+                onPressed: () {
+                  final code = PlanetDatabase.randomSectionNumber();
+                  controller.text = '$code';
+                },
+              ),
+            ],
           ),
           actions: [
             TextButton(
@@ -646,7 +678,6 @@ class _BoardScreenState extends State<BoardScreen> {
                   _areaCells.putIfAbsent(_viewingArea, () => {});
                   _areaCells[_viewingArea]![(row, col)] = CellData(
                     sectionNumber: number,
-                    locationType: _selectedLocation ?? LocationType.world,
                   );
                   _notifyChanged();
                 });
@@ -657,6 +688,124 @@ class _BoardScreenState extends State<BoardScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCurrentPlanetInfo() {
+    final cell = _areaCells[_shipArea]?[(_shipRow, _shipCol)];
+    if (cell == null || cell.isDeepSpace) return const SizedBox.shrink();
+
+    final planet = PlanetDatabase.planets[cell.sectionNumber];
+    if (planet == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: const Color(0xFF161B22),
+          border: Border.all(color: const Color(0xFF30363D)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${planet.name} (${cell.sectionNumber})',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 6),
+
+            _planetInfoRow('Soporte vital', planet.lifeSupport),
+            _planetInfoRow('Convenio', planet.agreement),
+            _planetInfoRow('Espaciopuerto', planet.spaceport),
+            _planetInfoRow('Autosuficiencia', '${planet.selfSufficiency}'),
+            _planetInfoRow('UCN/pedido', '${planet.ucnPerOrder}'),
+            _planetInfoRow('Pasajeros', '${planet.passengers}'),
+
+            const SizedBox(height: 8),
+
+            _buildProductProfitTable(planet),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductProfitTable(Planet planet) {
+    final planetProducts = ProductReference.products
+        .where((p) => planet.products.contains(p.code))
+        .toList()
+      ..sort((a, b) => _profitPercent(b).compareTo(_profitPercent(a)));
+
+    return Table(
+      columnWidths: const {
+        0: FlexColumnWidth(),
+        1: FixedColumnWidth(32),
+        2: FixedColumnWidth(32),
+        3: FixedColumnWidth(42),
+      },
+      children: [
+        TableRow(
+          decoration: const BoxDecoration(color: Color(0xFF1C2333)),
+          children: [
+            _productHeader('Producto'),
+            _productHeader('C'),
+            _productHeader('V'),
+            _productHeader('%'),
+          ],
+        ),
+
+        for (final p in planetProducts)
+          TableRow(
+            children: [
+              _productCell(p.code, bold: true),
+              _productCell('${p.purchasePrice}'),
+              _productCell('${p.salePrice}'),
+              _productCell(
+                '${_profitPercent(p)}%',
+                color: const Color(0xFF2EA043),
+                bold: true,
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  int _profitPercent(ProductInfo p) {
+    return ((p.salePrice - p.purchasePrice) / p.purchasePrice * 100).round();
+  }
+
+  Widget _productHeader(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+      child: Text(text, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF8B949E))),
+    );
+  }
+
+  Widget _productCell(String text, {bool bold = false, Color? color}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 10, fontWeight: bold ? FontWeight.bold : FontWeight.normal, color: color),
+      ),
+    );
+  }
+
+  Widget _planetInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF8B949E))),
+          Text(value, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+        ],
       ),
     );
   }

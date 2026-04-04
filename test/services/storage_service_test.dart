@@ -136,7 +136,7 @@ void main() {
           day: 20,
           hyperjumpDays: 7,
           areaCells: {
-            5: {(2, 4): CellData(sectionNumber: 333, locationType: LocationType.orbitalStation, pirates: true, megacorporation: 'MegaCorp')},
+            5: {(2, 4): CellData(sectionNumber: 333, pirates: true, megacorporation: 'MegaCorp')},
           },
           areaDensity: {5: AreaDensity.high},
           selectedLocation: '333',
@@ -256,7 +256,6 @@ void main() {
       expect(r.boardState.areaDensity[5], AreaDensity.high);
       final cell = r.boardState.areaCells[5]?[(2, 4)];
       expect(cell?.sectionNumber, 333);
-      expect(cell?.locationType, LocationType.orbitalStation);
       expect(cell?.pirates, true);
       expect(cell?.megacorporation, 'MegaCorp');
 

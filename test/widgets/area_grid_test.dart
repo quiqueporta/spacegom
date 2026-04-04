@@ -87,8 +87,8 @@ void main() {
       await tester.pumpWidget(buildTestable(
         AreaGrid(
           cells: {
-            (1, 1): CellData(sectionNumber: 111, locationType: LocationType.world),
-            (1, 2): CellData(sectionNumber: 222, locationType: LocationType.spaceport),
+            (1, 1): CellData(sectionNumber: 111),
+            (1, 2): CellData(sectionNumber: 222),
           },
           onCellTap: (_, __) {},
         ),

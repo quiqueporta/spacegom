@@ -23,7 +23,7 @@ void main() {
           shipCol: 4,
           day: 15,
           areaCells: {
-            2: {(3, 4): CellData(sectionNumber: 256, locationType: LocationType.spaceport)},
+            2: {(3, 4): CellData(sectionNumber: 256)},
           },
         ),
       );
@@ -36,7 +36,6 @@ void main() {
       expect(restored.company.reputation, -3);
       expect(restored.boardState.shipArea, 2);
       expect(restored.boardState.areaCells[2]?[(3, 4)]?.sectionNumber, 256);
-      expect(restored.boardState.areaCells[2]?[(3, 4)]?.locationType, LocationType.spaceport);
     });
 
     test('se puede serializar a JSON string y recuperar', () {

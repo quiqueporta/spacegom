@@ -16,11 +16,11 @@ void main() {
         hyperjumpDays: 7,
         areaCells: {
           2: {
-            (3, 4): CellData(sectionNumber: 256, locationType: LocationType.spaceport),
+            (3, 4): CellData(sectionNumber: 256),
             (1, 1): CellData(sectionNumber: 111),
           },
           1: {
-            (2, 3): CellData(sectionNumber: 300, locationType: LocationType.hyperjump),
+            (2, 3): CellData(sectionNumber: 300),
           },
         },
         areaDensity: {2: AreaDensity.high, 1: AreaDensity.low},
@@ -37,11 +37,8 @@ void main() {
       expect(restored.day, 15);
       expect(restored.hyperjumpDays, 7);
       expect(restored.areaCells[2]?[(3, 4)]?.sectionNumber, 256);
-      expect(restored.areaCells[2]?[(3, 4)]?.locationType, LocationType.spaceport);
       expect(restored.areaCells[2]?[(1, 1)]?.sectionNumber, 111);
-      expect(restored.areaCells[2]?[(1, 1)]?.locationType, LocationType.world);
       expect(restored.areaCells[1]?[(2, 3)]?.sectionNumber, 300);
-      expect(restored.areaCells[1]?[(2, 3)]?.locationType, LocationType.hyperjump);
       expect(restored.areaDensity[2], AreaDensity.high);
       expect(restored.areaDensity[1], AreaDensity.low);
     });
@@ -126,7 +123,6 @@ void main() {
       final restored = BoardState.fromJson(legacyJson);
 
       expect(restored.areaCells[2]?[(3, 4)]?.sectionNumber, 256);
-      expect(restored.areaCells[2]?[(3, 4)]?.locationType, LocationType.world);
     });
   });
 }

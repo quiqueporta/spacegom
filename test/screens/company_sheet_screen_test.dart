@@ -142,6 +142,72 @@ void main() {
       expect(lastCompany!.treasury.transactions.first.concept, 'Sueldo');
     });
 
+    testWidgets('muestra botón de pagar salarios', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialCompany: Company(
+          employees: [Employee(id: 1, name: 'Ana', salary: 5)],
+        ),
+      ));
+
+      expect(find.byIcon(Icons.payments), findsOneWidget);
+    });
+
+    testWidgets('pagar salarios llama al callback con el total', (tester) async {
+      int? paidAmount;
+
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: CompanySheetScreen(
+            initialCompany: Company(
+              employees: [
+                Employee(id: 1, name: 'Ana', salary: 5),
+                Employee(id: 2, name: 'Luis', salary: 3),
+              ],
+            ),
+            onChanged: (_) {},
+            onPaySalaries: (amount) => paidAmount = amount,
+          ),
+        ),
+      ));
+
+      await tester.ensureVisible(find.byIcon(Icons.payments));
+      await tester.tap(find.byIcon(Icons.payments));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Aceptar'));
+      await tester.pump();
+
+      expect(paidAmount, 8);
+    });
+
+    testWidgets('pagar salarios excluye empleados despedidos', (tester) async {
+      int? paidAmount;
+
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: CompanySheetScreen(
+            initialCompany: Company(
+              employees: [
+                Employee(id: 1, name: 'Ana', salary: 5),
+                Employee(id: 2, name: 'Luis', salary: 3, dismissed: true),
+              ],
+            ),
+            onChanged: (_) {},
+            onPaySalaries: (amount) => paidAmount = amount,
+          ),
+        ),
+      ));
+
+      await tester.ensureVisible(find.byIcon(Icons.payments));
+      await tester.tap(find.byIcon(Icons.payments));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Aceptar'));
+      await tester.pump();
+
+      expect(paidAmount, 5);
+    });
+
     testWidgets('muestra empleados existentes', (tester) async {
       await tester.pumpWidget(buildTestable(
         initialCompany: Company(

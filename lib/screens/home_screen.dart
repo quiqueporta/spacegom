@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 
 import 'package:spacegom_companion/models/area_sheet.dart';
 import 'package:spacegom_companion/models/campaign_calendar.dart';
+import 'package:spacegom_companion/models/company.dart';
 import 'package:spacegom_companion/models/game_state.dart';
 import 'package:spacegom_companion/screens/area_sheet_screen.dart';
 import 'package:spacegom_companion/screens/board_screen.dart';
@@ -29,7 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   late GameState _gameState;
   int _stateVersion = 0;
+  int _treasuryVersion = 0;
   final _storageService = StorageService();
+  PageController _pageController = PageController();
 
   @override
   void initState() {
@@ -38,13 +41,21 @@ class _HomeScreenState extends State<HomeScreen> {
     _gameState = widget.initialState;
   }
 
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   void _onBoardChanged(boardState) {
     _gameState = _gameState.copyWith(boardState: boardState);
     _storageService.saveGameState(_gameState);
   }
 
-  void _onCompanyChanged(company) {
-    _gameState = _gameState.copyWith(company: company);
+  void _onCompanyChanged(Company company) {
+    _gameState = _gameState.copyWith(
+      company: company.copyWith(treasury: _gameState.company.treasury),
+    );
     _storageService.saveGameState(_gameState);
   }
 
@@ -52,6 +63,23 @@ class _HomeScreenState extends State<HomeScreen> {
     _gameState = _gameState.copyWith(
       company: _gameState.company.copyWith(treasury: treasury),
     );
+    _storageService.saveGameState(_gameState);
+  }
+
+  void _onPaySalaries(int amount) {
+    final updatedTreasury = _gameState.company.treasury.copyWith(
+      transactions: [
+        ..._gameState.company.treasury.transactions,
+        Transaction(concept: 'Salarios', amount: -amount),
+      ],
+    );
+
+    setState(() {
+      _gameState = _gameState.copyWith(
+        company: _gameState.company.copyWith(treasury: updatedTreasury),
+      );
+      _treasuryVersion++;
+    });
     _storageService.saveGameState(_gameState);
   }
 
@@ -131,6 +159,9 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _gameState = defaultState;
       _stateVersion++;
+      _currentIndex = 0;
+      _pageController.dispose();
+      _pageController = PageController();
     });
 
     if (mounted) {
@@ -158,6 +189,9 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _gameState = imported;
         _stateVersion++;
+        _currentIndex = 0;
+        _pageController.dispose();
+        _pageController = PageController();
       });
 
       if (mounted) {
@@ -199,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   showAboutDialog(
                     context: context,
                     applicationName: 'Spacegom Companion',
-                    applicationVersion: '1.2.1',
+                    applicationVersion: '1.3.0',
                     applicationIcon: Image.asset(
                       'assets/spacegom_logo.png',
                       width: 48,
@@ -250,9 +284,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: IndexedStack(
+      body: PageView(
         key: ValueKey(_stateVersion),
-        index: _currentIndex,
+        controller: _pageController,
+        onPageChanged: (i) => setState(() => _currentIndex = i),
         children: [
           BoardScreen(
             initialState: _gameState.boardState,
@@ -266,8 +301,10 @@ class _HomeScreenState extends State<HomeScreen> {
           CompanySheetScreen(
             initialCompany: _gameState.company,
             onChanged: _onCompanyChanged,
+            onPaySalaries: _onPaySalaries,
           ),
           TreasuryScreen(
+            key: ValueKey(_treasuryVersion),
             treasury: _gameState.company.treasury,
             onChanged: _onTreasuryChanged,
           ),
@@ -276,7 +313,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
+        onTap: (i) {
+          _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+        },
         type: BottomNavigationBarType.fixed,
         backgroundColor: const Color(0xFF161B22),
         selectedItemColor: const Color(0xFF58A6FF),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:spacegom_companion/models/planet.dart';
@@ -63,6 +65,37 @@ void main() {
 
       expect(planet, isNotNull);
       expect(planet!.name, 'Vilecarro');
+    });
+
+    test('randomSectionNumber genera un código válido de 3 dígitos (1-6 cada uno)', () {
+      for (var i = 0; i < 100; i++) {
+        final code = PlanetDatabase.randomSectionNumber();
+        final digits = code.toString().split('').map(int.parse).toList();
+
+        expect(digits.length, 3);
+        for (final digit in digits) {
+          expect(digit, greaterThanOrEqualTo(1));
+          expect(digit, lessThanOrEqualTo(6));
+        }
+      }
+    });
+
+    test('randomSectionNumber corresponde a un planeta existente', () {
+      for (var i = 0; i < 100; i++) {
+        final code = PlanetDatabase.randomSectionNumber();
+
+        expect(PlanetDatabase.planets.containsKey(code), isTrue);
+      }
+    });
+
+    test('randomSectionNumber usa el Random proporcionado', () {
+      final random = Random(42);
+      final code1 = PlanetDatabase.randomSectionNumber(random: random);
+
+      final random2 = Random(42);
+      final code2 = PlanetDatabase.randomSectionNumber(random: random2);
+
+      expect(code1, code2);
     });
   });
 }

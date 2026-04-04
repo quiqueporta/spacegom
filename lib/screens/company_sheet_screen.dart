@@ -16,18 +16,20 @@ import 'package:spacegom_companion/widgets/ship_info_card.dart';
 class CompanySheetScreen extends StatefulWidget {
   final Company initialCompany;
   final ValueChanged<Company> onChanged;
+  final ValueChanged<int>? onPaySalaries;
 
   const CompanySheetScreen({
     super.key,
     required this.initialCompany,
     required this.onChanged,
+    this.onPaySalaries,
   });
 
   @override
   State<CompanySheetScreen> createState() => _CompanySheetScreenState();
 }
 
-class _CompanySheetScreenState extends State<CompanySheetScreen> {
+class _CompanySheetScreenState extends State<CompanySheetScreen> with AutomaticKeepAliveClientMixin {
   late String _companyName;
   late List<Ship> _ships;
   late int _activeShipIndex;
@@ -88,7 +90,12 @@ class _CompanySheetScreenState extends State<CompanySheetScreen> {
   void _notifyChanged() => widget.onChanged(_buildCompany());
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -386,6 +393,12 @@ class _CompanySheetScreenState extends State<CompanySheetScreen> {
             ),
 
             IconButton(
+              onPressed: _employees.isNotEmpty ? _paySalaries : null,
+              icon: const Icon(Icons.payments),
+              iconSize: 20,
+            ),
+
+            IconButton(
               onPressed: _employees.length < 50 ? _addEmployee : null,
               icon: const Icon(Icons.person_add),
               iconSize: 20,
@@ -400,6 +413,37 @@ class _CompanySheetScreenState extends State<CompanySheetScreen> {
         ),
       ],
     );
+  }
+
+  void _paySalaries() {
+    final total = _activeEmployeesSalary();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Pagar salarios'),
+        content: Text('Se descontarán $total SC de la tesorería.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              widget.onPaySalaries?.call(total);
+              Navigator.pop(ctx);
+            },
+            child: const Text('Aceptar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  int _activeEmployeesSalary() {
+    return _employees
+        .where((e) => !e.dismissed)
+        .fold(0, (sum, e) => sum + e.salary);
   }
 
   Future<void> _addEmployee() async {

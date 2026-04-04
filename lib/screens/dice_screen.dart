@@ -9,7 +9,7 @@ class DiceScreen extends StatefulWidget {
   State<DiceScreen> createState() => _DiceScreenState();
 }
 
-class _DiceScreenState extends State<DiceScreen> {
+class _DiceScreenState extends State<DiceScreen> with AutomaticKeepAliveClientMixin {
   final _random = Random();
   int _diceCount = 2;
   List<int> _results = [];
@@ -23,7 +23,12 @@ class _DiceScreenState extends State<DiceScreen> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),

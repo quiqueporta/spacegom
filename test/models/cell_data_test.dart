@@ -27,36 +27,35 @@ void main() {
 
   group('CellData', () {
     test('toJson y fromJson producen el mismo dato', () {
-      final cell = CellData(
-        sectionNumber: 256,
-        locationType: LocationType.spaceport,
-      );
+      final cell = CellData(sectionNumber: 256);
 
       final json = cell.toJson();
       final restored = CellData.fromJson(json);
 
       expect(restored.sectionNumber, 256);
-      expect(restored.locationType, LocationType.spaceport);
-    });
-
-    test('valores por defecto tienen tipo mundo', () {
-      final cell = CellData(sectionNumber: 111);
-
-      expect(cell.locationType, LocationType.world);
     });
 
     test('copyWith cambia solo los campos indicados', () {
-      final original = CellData(
-        sectionNumber: 333,
-        locationType: LocationType.world,
-      );
+      final original = CellData(sectionNumber: 333, pirates: true);
 
-      final modified = original.copyWith(
-        locationType: LocationType.hyperjump,
-      );
+      final modified = original.copyWith(megacorporation: 'Weyland');
 
       expect(modified.sectionNumber, 333);
-      expect(modified.locationType, LocationType.hyperjump);
+      expect(modified.pirates, true);
+      expect(modified.megacorporation, 'Weyland');
+    });
+
+    test('fromJson ignora locationType de datos antiguos', () {
+      final json = {
+        'sectionNumber': 256,
+        'locationType': 'spaceport',
+        'pirates': false,
+        'megacorporation': '',
+      };
+
+      final restored = CellData.fromJson(json);
+
+      expect(restored.sectionNumber, 256);
     });
 
     test('espacio profundo sin número de sección', () {

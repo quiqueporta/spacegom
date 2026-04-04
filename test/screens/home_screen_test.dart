@@ -15,6 +15,33 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
+  group('navegación por swipe', () {
+    testWidgets('deslizar a la izquierda cambia a la siguiente pestaña', (tester) async {
+      await tester.pumpWidget(buildTestable());
+
+      expect(find.text('Tablero'), findsOneWidget);
+
+      await tester.fling(find.byType(PageView), const Offset(-300, 0), 1000);
+      await tester.pumpAndSettle();
+
+      final navBar = tester.widget<BottomNavigationBar>(find.byType(BottomNavigationBar));
+      expect(navBar.currentIndex, 1);
+    });
+
+    testWidgets('deslizar a la derecha vuelve a la pestaña anterior', (tester) async {
+      await tester.pumpWidget(buildTestable());
+
+      await tester.fling(find.byType(PageView), const Offset(-300, 0), 1000);
+      await tester.pumpAndSettle();
+
+      await tester.fling(find.byType(PageView), const Offset(300, 0), 1000);
+      await tester.pumpAndSettle();
+
+      final navBar = tester.widget<BottomNavigationBar>(find.byType(BottomNavigationBar));
+      expect(navBar.currentIndex, 0);
+    });
+  });
+
   group('menú de datos', () {
     testWidgets('muestra el botón de menú en el AppBar', (tester) async {
       await tester.pumpWidget(buildTestable());

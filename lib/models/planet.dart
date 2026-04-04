@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class Planet {
   final String name;
   final String lifeSupport;
@@ -78,6 +80,15 @@ class PlanetDatabase {
   PlanetDatabase._();
 
   static final Map<int, Planet> planets = _buildPlanetData();
+
+  static int randomSectionNumber({Random? random}) {
+    final rng = random ?? Random();
+    final d1 = rng.nextInt(6) + 1;
+    final d2 = rng.nextInt(6) + 1;
+    final d3 = rng.nextInt(6) + 1;
+
+    return d1 * 100 + d2 * 10 + d3;
+  }
 }
 
 Map<int, Planet> _buildPlanetData() {
