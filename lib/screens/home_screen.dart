@@ -6,12 +6,15 @@ import 'package:share_plus/share_plus.dart';
 import 'package:spacegom_companion/models/area_sheet.dart';
 import 'package:spacegom_companion/models/campaign_calendar.dart';
 import 'package:spacegom_companion/models/company.dart';
+import 'package:spacegom_companion/models/employee.dart';
 import 'package:spacegom_companion/models/game_state.dart';
+import 'package:spacegom_companion/models/weapon.dart';
 import 'package:spacegom_companion/screens/area_sheet_screen.dart';
 import 'package:spacegom_companion/screens/board_screen.dart';
 import 'package:spacegom_companion/screens/calendar_screen.dart';
 import 'package:spacegom_companion/models/treasury.dart';
 import 'package:spacegom_companion/screens/company_sheet_screen.dart';
+import 'package:spacegom_companion/screens/crew_screen.dart';
 import 'package:spacegom_companion/screens/dice_screen.dart';
 import 'package:spacegom_companion/screens/treasury_screen.dart';
 import 'package:spacegom_companion/services/storage_service.dart';
@@ -54,7 +57,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onCompanyChanged(Company company) {
     _gameState = _gameState.copyWith(
-      company: company.copyWith(treasury: _gameState.company.treasury),
+      company: company.copyWith(
+        treasury: _gameState.company.treasury,
+        employees: _gameState.company.employees,
+        weapons: _gameState.company.weapons,
+      ),
+    );
+    _storageService.saveGameState(_gameState);
+  }
+
+  void _onCrewChanged(List<Employee> employees, List<Weapon> weapons) {
+    _gameState = _gameState.copyWith(
+      company: _gameState.company.copyWith(
+        employees: employees,
+        weapons: weapons,
+      ),
     );
     _storageService.saveGameState(_gameState);
   }
@@ -301,6 +318,11 @@ class _HomeScreenState extends State<HomeScreen> {
           CompanySheetScreen(
             initialCompany: _gameState.company,
             onChanged: _onCompanyChanged,
+          ),
+          CrewScreen(
+            employees: _gameState.company.employees,
+            weapons: _gameState.company.weapons,
+            onChanged: _onCrewChanged,
             onPaySalaries: _onPaySalaries,
           ),
           TreasuryScreen(
@@ -327,7 +349,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.rocket_launch_outlined),
-            label: 'Compañía',
+            label: 'Nave',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.groups_outlined),
+            label: 'Tripulación',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_balance_outlined),

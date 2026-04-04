@@ -27,6 +27,7 @@ void main() {
     await tester.pumpWidget(SpacegomApp());
 
     expect(find.text('Tablero'), findsOneWidget);
-    expect(find.text('Compañía'), findsOneWidget);
+    expect(find.text('Nave'), findsOneWidget);
+    expect(find.text('Tripulación'), findsOneWidget);
   });
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:spacegom_companion/models/company.dart';
-import 'package:spacegom_companion/models/employee.dart';
 import 'package:spacegom_companion/models/ship.dart';
 import 'package:spacegom_companion/models/treasury.dart';
 import 'package:spacegom_companion/screens/company_sheet_screen.dart';
@@ -116,26 +115,6 @@ void main() {
       expect(lastCompany!.fuel, 1);
     });
 
-    testWidgets('muestra la sección PLANTILLA con botón añadir', (tester) async {
-      await tester.pumpWidget(buildTestable());
-
-      expect(find.textContaining('PLANTILLA'), findsOneWidget);
-      expect(find.byIcon(Icons.person_add), findsOneWidget);
-    });
-
-    testWidgets('muestra coste total de la plantilla', (tester) async {
-      await tester.pumpWidget(buildTestable(
-        initialCompany: Company(
-          employees: [
-            Employee(id: 1, name: 'Ana', salary: 5),
-            Employee(id: 2, name: 'Luis', salary: 3),
-          ],
-        ),
-      ));
-
-      expect(find.textContaining('8 SC'), findsOneWidget);
-    });
-
     testWidgets('preserva la tesorería al notificar cambios', (tester) async {
       Company? lastCompany;
       final treasury = Treasury(
@@ -166,83 +145,11 @@ void main() {
       expect(lastCompany!.treasury.transactions.first.concept, 'Sueldo');
     });
 
-    testWidgets('muestra botón de pagar salarios', (tester) async {
-      await tester.pumpWidget(buildTestable(
-        initialCompany: Company(
-          employees: [Employee(id: 1, name: 'Ana', salary: 5)],
-        ),
-      ));
+    testWidgets('no muestra sección de plantilla ni armas', (tester) async {
+      await tester.pumpWidget(buildTestable());
 
-      expect(find.byIcon(Icons.payments), findsOneWidget);
-    });
-
-    testWidgets('pagar salarios llama al callback con el total', (tester) async {
-      int? paidAmount;
-
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: CompanySheetScreen(
-            initialCompany: Company(
-              employees: [
-                Employee(id: 1, name: 'Ana', salary: 5),
-                Employee(id: 2, name: 'Luis', salary: 3),
-              ],
-            ),
-            onChanged: (_) {},
-            onPaySalaries: (amount) => paidAmount = amount,
-          ),
-        ),
-      ));
-
-      await tester.ensureVisible(find.byIcon(Icons.payments));
-      await tester.tap(find.byIcon(Icons.payments));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Aceptar'));
-      await tester.pump();
-
-      expect(paidAmount, 8);
-    });
-
-    testWidgets('pagar salarios excluye empleados despedidos', (tester) async {
-      int? paidAmount;
-
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: CompanySheetScreen(
-            initialCompany: Company(
-              employees: [
-                Employee(id: 1, name: 'Ana', salary: 5),
-                Employee(id: 2, name: 'Luis', salary: 3, dismissed: true),
-              ],
-            ),
-            onChanged: (_) {},
-            onPaySalaries: (amount) => paidAmount = amount,
-          ),
-        ),
-      ));
-
-      await tester.ensureVisible(find.byIcon(Icons.payments));
-      await tester.tap(find.byIcon(Icons.payments));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Aceptar'));
-      await tester.pump();
-
-      expect(paidAmount, 5);
-    });
-
-    testWidgets('muestra empleados existentes', (tester) async {
-      await tester.pumpWidget(buildTestable(
-        initialCompany: Company(
-          employees: [
-            Employee(id: 1, name: 'Ana', role: 'Piloto'),
-          ],
-        ),
-      ));
-
-      expect(find.text('Ana'), findsOneWidget);
-      expect(find.text('Piloto'), findsOneWidget);
+      expect(find.textContaining('PLANTILLA'), findsNothing);
+      expect(find.textContaining('ARMAS'), findsNothing);
     });
   });
 }
