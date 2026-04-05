@@ -86,5 +86,44 @@ void main() {
       expect(cell.megacorporation, '');
       expect(cell.isDeepSpace, false);
     });
+
+    test('serializa y deserializa notas', () {
+      final cell = CellData(sectionNumber: 256, notes: 'Buen sitio para comerciar');
+
+      final json = cell.toJson();
+      final restored = CellData.fromJson(json);
+
+      expect(restored.notes, 'Buen sitio para comerciar');
+    });
+
+    test('notas vacías por defecto', () {
+      final cell = CellData(sectionNumber: 111);
+
+      expect(cell.notes, '');
+    });
+
+    test('hasNotes es true cuando tiene notas', () {
+      final cell = CellData(sectionNumber: 111, notes: 'Algo');
+
+      expect(cell.hasNotes, true);
+    });
+
+    test('hasNotes es false cuando no tiene notas', () {
+      final cell = CellData(sectionNumber: 111);
+
+      expect(cell.hasNotes, false);
+    });
+
+    test('fromJson sin notas mantiene compatibilidad', () {
+      final json = {
+        'sectionNumber': 256,
+        'pirates': false,
+        'megacorporation': '',
+      };
+
+      final restored = CellData.fromJson(json);
+
+      expect(restored.notes, '');
+    });
   });
 }

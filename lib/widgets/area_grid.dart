@@ -166,6 +166,13 @@ class AreaGrid extends StatelessWidget {
                   style: const TextStyle(fontSize: 6, color: Color(0xFFBC8CFF)),
                 ),
               ),
+
+            if (cellData != null && cellData.hasNotes)
+              const Positioned(
+                bottom: 0,
+                right: 1,
+                child: Text('📝', style: TextStyle(fontSize: 7)),
+              ),
           ],
         ),
       ),
