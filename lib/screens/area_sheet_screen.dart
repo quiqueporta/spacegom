@@ -7,12 +7,16 @@ class AreaSheetScreen extends StatefulWidget {
   final int area;
   final AreaSheet sheet;
   final ValueChanged<AreaSheet> onChanged;
+  final String? currentWorld;
+  final String? currentDate;
 
   const AreaSheetScreen({
     super.key,
     required this.area,
     required this.sheet,
     required this.onChanged,
+    this.currentWorld,
+    this.currentDate,
   });
 
   @override
@@ -466,11 +470,24 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                 const Text('COMPRA', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF8B949E))),
                 const SizedBox(height: 4),
 
-                TextField(
-                  controller: purchaseWorldCtrl,
-                  decoration: const InputDecoration(labelText: 'Mundo (nº sección)'),
-                  keyboardType: TextInputType.number,
-                  autofocus: !isEditing,
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: purchaseWorldCtrl,
+                        decoration: const InputDecoration(labelText: 'Mundo (nº sección)'),
+                        keyboardType: TextInputType.number,
+                        autofocus: !isEditing,
+                      ),
+                    ),
+
+                    if (widget.currentWorld != null)
+                      IconButton(
+                        icon: const Icon(Icons.my_location, size: 18),
+                        tooltip: 'Mundo actual',
+                        onPressed: () => purchaseWorldCtrl.text = widget.currentWorld!,
+                      ),
+                  ],
                 ),
 
                 DropdownButton<String>(
@@ -497,17 +514,43 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                   keyboardType: TextInputType.number,
                 ),
 
-                DateField(controller: purchaseDateCtrl, labelText: 'Fecha compra'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DateField(controller: purchaseDateCtrl, labelText: 'Fecha compra'),
+                    ),
+
+                    if (widget.currentDate != null)
+                      IconButton(
+                        icon: const Icon(Icons.today, size: 18),
+                        tooltip: 'Fecha actual',
+                        onPressed: () => purchaseDateCtrl.text = widget.currentDate!,
+                      ),
+                  ],
+                ),
 
                 const SizedBox(height: 16),
 
                 const Text('VENTA', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF8B949E))),
                 const SizedBox(height: 4),
 
-                TextField(
-                  controller: saleWorldCtrl,
-                  decoration: const InputDecoration(labelText: 'Mundo (nº sección)'),
-                  keyboardType: TextInputType.number,
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: saleWorldCtrl,
+                        decoration: const InputDecoration(labelText: 'Mundo (nº sección)'),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+
+                    if (widget.currentWorld != null)
+                      IconButton(
+                        icon: const Icon(Icons.my_location, size: 18),
+                        tooltip: 'Mundo actual',
+                        onPressed: () => saleWorldCtrl.text = widget.currentWorld!,
+                      ),
+                  ],
                 ),
 
                 TextField(
@@ -516,7 +559,20 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                   keyboardType: TextInputType.number,
                 ),
 
-                DateField(controller: saleDateCtrl, labelText: 'Fecha venta'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DateField(controller: saleDateCtrl, labelText: 'Fecha venta'),
+                    ),
+
+                    if (widget.currentDate != null)
+                      IconButton(
+                        icon: const Icon(Icons.today, size: 18),
+                        tooltip: 'Fecha actual',
+                        onPressed: () => saleDateCtrl.text = widget.currentDate!,
+                      ),
+                  ],
+                ),
 
                 const SizedBox(height: 8),
 

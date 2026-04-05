@@ -109,6 +109,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _openAreaSheet(int area) {
     final sheet = _gameState.areaSheets[area] ?? const AreaSheet();
+    final board = _gameState.boardState;
+    final cell = board.areaCells[board.shipArea]?[(board.shipRow, board.shipCol)];
+    final currentWorld = cell?.sectionNumber?.toString();
+    final cal = _gameState.calendar;
+    final currentDate = '${cal.currentDate.$2.toString().padLeft(2, '0')}/${cal.currentDate.$1.toString().padLeft(2, '0')}/${cal.currentYear.toString().padLeft(2, '0')}';
 
     Navigator.push(
       context,
@@ -116,6 +121,8 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => AreaSheetScreen(
           area: area,
           sheet: sheet,
+          currentWorld: currentWorld,
+          currentDate: currentDate,
           onChanged: (updatedSheet) {
             final sheets = Map<int, AreaSheet>.from(_gameState.areaSheets);
             sheets[area] = updatedSheet;

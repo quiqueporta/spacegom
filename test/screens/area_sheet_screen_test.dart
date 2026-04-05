@@ -178,5 +178,63 @@ void main() {
       expect(find.text('INDU'), findsOneWidget);
       expect(find.text('COM'), findsOneWidget);
     });
+
+    testWidgets('nueva operación muestra iconos de relleno rápido', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: AreaSheetScreen(
+          area: 1,
+          sheet: const AreaSheet(),
+          onChanged: (_) {},
+          currentWorld: '256',
+          currentDate: '15/03/01',
+        ),
+      ));
+
+      await tester.tap(find.byIcon(Icons.add).last);
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.my_location), findsWidgets);
+      expect(find.byIcon(Icons.today), findsWidgets);
+    });
+
+    testWidgets('icono de mundo rellena el campo con el mundo actual', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: AreaSheetScreen(
+          area: 1,
+          sheet: const AreaSheet(),
+          onChanged: (_) {},
+          currentWorld: '256',
+          currentDate: '15/03/01',
+        ),
+      ));
+
+      await tester.tap(find.byIcon(Icons.add).last);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.my_location).first);
+      await tester.pump();
+
+      expect(find.text('256'), findsOneWidget);
+    });
+
+    testWidgets('icono de fecha rellena el campo con la fecha actual', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: AreaSheetScreen(
+          area: 1,
+          sheet: const AreaSheet(),
+          onChanged: (_) {},
+          currentWorld: '256',
+          currentDate: '15/03/01',
+        ),
+      ));
+
+      await tester.tap(find.byIcon(Icons.add).last);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.today).first);
+      await tester.pump();
+
+      expect(find.text('15/03/01'), findsOneWidget);
+    });
   });
 }
