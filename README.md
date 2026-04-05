@@ -13,13 +13,13 @@ Digitaliza las hojas de registro en papel del juego (ficha de compañía, tabler
 
 ## Capturas de pantalla
 
-| Tablero | Plantilla | Tesorería |
+| Tablero | Nave | Tripulación |
 |:---:|:---:|:---:|
-| ![Tablero](screenshots/tablero.png) | ![Plantilla](screenshots/plantilla.png) | ![Tesorería](screenshots/tesoreria.png) |
+| ![Tablero](screenshots/tablero.png) | ![Nave](screenshots/nave.png) | ![Tripulación](screenshots/tripulacion.png) |
 
-| Dados | Calendario |
-|:---:|:---:|
-| ![Dados](screenshots/dados.png) | ![Calendario](screenshots/calendario.png) |
+| Tesorería | Calendario | Dados |
+|:---:|:---:|:---:|
+| ![Tesorería](screenshots/tesoreria.png) | ![Calendario](screenshots/calendario.png) | ![Dados](screenshots/dados.png) |
 
 ## Requisitos
 
