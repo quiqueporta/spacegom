@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.0
+
+- Botones de relleno rápido (mundo actual y fecha actual) en operaciones de comercio
+- Notas en planetas con icono en el mapa y visualización en panel de info
+- Cabecera de rentabilidad más clara (Rent.%)
+
 ## 1.4.0
 
 - Nombre de producto completo en tarjetas de comercio
