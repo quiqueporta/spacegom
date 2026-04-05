@@ -283,7 +283,7 @@ void main() {
       ));
 
       expect(find.text('Producto'), findsWidgets);
-      expect(find.text('%'), findsWidgets);
+      expect(find.text('Rent.%'), findsWidgets);
       expect(find.text('INDU'), findsWidgets);
     });
 

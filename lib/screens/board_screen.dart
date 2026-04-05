@@ -897,7 +897,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
         0: FlexColumnWidth(),
         1: FixedColumnWidth(32),
         2: FixedColumnWidth(32),
-        3: FixedColumnWidth(42),
+        3: FixedColumnWidth(48),
       },
       children: [
         TableRow(
@@ -906,7 +906,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
             _productHeader('Producto'),
             _productHeader('C'),
             _productHeader('V'),
-            _productHeader('%'),
+            _productHeader('Rent.%'),
           ],
         ),
 
