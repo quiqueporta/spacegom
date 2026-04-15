@@ -68,6 +68,17 @@ void main() {
       expect(find.byIcon(Icons.payments), findsOneWidget);
     });
 
+    testWidgets('muestra handles de reordenar en la lista de empleados', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        employees: [
+          Employee(id: 1, name: 'Ana', role: 'Piloto'),
+          Employee(id: 2, name: 'Luis', role: 'Ingeniero'),
+        ],
+      ));
+
+      expect(find.byIcon(Icons.drag_handle), findsNWidgets(2));
+    });
+
     testWidgets('pagar salarios llama al callback con el total', (tester) async {
       int? paidAmount;
 

@@ -8,6 +8,7 @@ Widget buildTestable({
   List<Employee> employees = const [],
   void Function(Employee)? onEdit,
   void Function(int)? onDelete,
+  void Function(int, int)? onReorder,
 }) {
   return MaterialApp(
     home: Scaffold(
@@ -15,6 +16,7 @@ Widget buildTestable({
         employees: employees,
         onEdit: onEdit ?? (_) {},
         onDelete: onDelete ?? (_) {},
+        onReorder: onReorder ?? (_, __) {},
       ),
     ),
   );
@@ -90,6 +92,17 @@ void main() {
       expect(find.text('+2'), findsOneWidget);
       expect(find.text('-2'), findsOneWidget);
       expect(find.text('0'), findsWidgets);
+    });
+
+    testWidgets('muestra handle de reordenar en cada empleado', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        employees: [
+          Employee(id: 1, name: 'Ana', role: 'Piloto'),
+          Employee(id: 2, name: 'Luis', role: 'Ingeniero'),
+        ],
+      ));
+
+      expect(find.byIcon(Icons.drag_handle), findsNWidgets(2));
     });
 
     testWidgets('marca empleado con adiós visualmente', (tester) async {

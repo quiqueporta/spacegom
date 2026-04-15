@@ -38,6 +38,16 @@ class _CrewScreenState extends State<CrewScreen> with AutomaticKeepAliveClientMi
     _weapons = List.from(widget.weapons);
   }
 
+  void _reorderEmployees(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) newIndex--;
+
+      final employee = _employees.removeAt(oldIndex);
+      _employees.insert(newIndex, employee);
+      _notifyChanged();
+    });
+  }
+
   void _notifyChanged() {
     widget.onChanged(List.from(_employees), List.from(_weapons));
   }
@@ -46,53 +56,56 @@ class _CrewScreenState extends State<CrewScreen> with AutomaticKeepAliveClientMi
   Widget build(BuildContext context) {
     super.build(context);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        children: [
-          _buildStaff(),
+    final employeeList = EmployeeList(
+      employees: _employees,
+      onEdit: _editEmployee,
+      onDelete: _deleteEmployee,
+      onReorder: _reorderEmployees,
+    );
 
-          const SizedBox(height: 16),
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(12),
+          sliver: SliverToBoxAdapter(child: _buildStaffHeader()),
+        ),
 
-          _buildWeapons(),
-        ],
-      ),
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          sliver: employeeList.buildSliver(),
+        ),
+
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
+          sliver: SliverToBoxAdapter(child: _buildWeapons()),
+        ),
+      ],
     );
   }
 
-  Widget _buildStaff() {
+  Widget _buildStaffHeader() {
     final totalSalary = _employees.fold(0, (sum, e) => sum + e.salary);
 
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                'PLANTILLA (${_employees.length}/50) — $totalSalary SC/mes',
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-              ),
-            ),
-
-            IconButton(
-              onPressed: _employees.isNotEmpty ? _paySalaries : null,
-              icon: const Icon(Icons.payments),
-              iconSize: 20,
-            ),
-
-            IconButton(
-              onPressed: _employees.length < 50 ? _addEmployee : null,
-              icon: const Icon(Icons.person_add),
-              iconSize: 20,
-            ),
-          ],
+        Expanded(
+          child: Text(
+            'PLANTILLA (${_employees.length}/50) — $totalSalary SC/mes',
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+          ),
         ),
 
-        EmployeeList(
-          employees: _employees,
-          onEdit: _editEmployee,
-          onDelete: _deleteEmployee,
+        IconButton(
+          onPressed: _employees.isNotEmpty ? _paySalaries : null,
+          icon: const Icon(Icons.payments),
+          iconSize: 20,
+        ),
+
+        IconButton(
+          onPressed: _employees.length < 50 ? _addEmployee : null,
+          icon: const Icon(Icons.person_add),
+          iconSize: 20,
         ),
       ],
     );

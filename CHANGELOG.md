@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.0
+
+- Reordenación de tripulantes mediante drag & drop con auto-scroll
+
 ## 1.6.0
 
 - Dado de megacorporación movido al diálogo de edición de planeta en el tablero
