@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:spacegom_companion/models/name_database.dart';
 import 'package:spacegom_companion/models/ship.dart';
 
 class ShipInfoCard extends StatelessWidget {
@@ -33,18 +32,7 @@ class ShipInfoCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: _buildTextField('COMPAÑÍA', companyName, onCompanyNameChanged),
-                ),
-                IconButton(
-                  onPressed: () => onCompanyNameChanged(NameDatabase.randomMegacorpName()),
-                  icon: const Icon(Icons.casino_outlined, size: 20, color: Color(0xFF58A6FF)),
-                  tooltip: 'Nombre aleatorio',
-                ),
-              ],
-            ),
+            _buildTextField('COMPAÑÍA', companyName, onCompanyNameChanged),
 
             const SizedBox(height: 8),
 

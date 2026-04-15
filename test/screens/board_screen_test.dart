@@ -237,6 +237,12 @@ void main() {
       expect(find.text('Alta'), findsOneWidget);
     });
 
+    testWidgets('muestra sección UBICACIÓN DE LA NAVE', (tester) async {
+      await tester.pumpWidget(buildTestable());
+
+      expect(find.text('UBICACIÓN DE LA NAVE'), findsOneWidget);
+    });
+
     testWidgets('muestra info del planeta donde está la nave', (tester) async {
       await tester.pumpWidget(buildTestable(
         initialState: BoardState(
@@ -251,13 +257,41 @@ void main() {
       expect(find.text('Chipethea (111)'), findsWidgets);
     });
 
+    testWidgets('muestra megacorporación del planeta donde está la nave', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          shipRow: 1,
+          shipCol: 1,
+          areaCells: {
+            1: {(1, 1): CellData(sectionNumber: 111, megacorporation: 'Orion Holdings')},
+          },
+        ),
+      ));
+
+      expect(find.textContaining('Orion Holdings'), findsWidgets);
+    });
+
+    testWidgets('muestra indicador de piratas del planeta donde está la nave', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          shipRow: 1,
+          shipCol: 1,
+          areaCells: {
+            1: {(1, 1): CellData(sectionNumber: 111, pirates: true)},
+          },
+        ),
+      ));
+
+      expect(find.textContaining('Piratas'), findsOneWidget);
+    });
+
     testWidgets('no muestra info si la nave está en celda vacía', (tester) async {
       await tester.pumpWidget(buildTestable());
 
       expect(find.textContaining('(111)'), findsNothing);
     });
 
-    testWidgets('no muestra info si la nave está en espacio profundo', (tester) async {
+    testWidgets('muestra Espacio profundo si la nave está en espacio profundo', (tester) async {
       await tester.pumpWidget(buildTestable(
         initialState: BoardState(
           shipRow: 1,
@@ -268,7 +302,23 @@ void main() {
         ),
       ));
 
-      expect(find.textContaining('('), findsNothing);
+      expect(find.text('Espacio profundo'), findsOneWidget);
+    });
+
+    testWidgets('muestra megacorporación y piratas en espacio profundo', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          shipRow: 1,
+          shipCol: 1,
+          areaCells: {
+            1: {(1, 1): CellData.deepSpace(megacorporation: 'Orion Holdings', pirates: true)},
+          },
+        ),
+      ));
+
+      expect(find.text('Espacio profundo'), findsOneWidget);
+      expect(find.textContaining('Orion Holdings'), findsWidgets);
+      expect(find.textContaining('Piratas'), findsOneWidget);
     });
 
     testWidgets('muestra productos con rentabilidad del planeta actual', (tester) async {
@@ -313,6 +363,150 @@ void main() {
       await tester.pumpWidget(buildTestable());
 
       expect(find.text('PLANETAS DEL ÁREA'), findsNothing);
+    });
+
+    testWidgets('planetas del área muestra los del área visualizada, no la de la nave', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          areaCells: {
+            1: {
+              (2, 2): CellData(sectionNumber: 111),
+            },
+            2: {
+              (1, 1): CellData(sectionNumber: 256),
+            },
+          },
+        ),
+      ));
+
+      await tester.tap(find.widgetWithText(IconButton, '>'));
+      await tester.pump();
+
+      expect(find.textContaining('Pucolla'), findsWidgets);
+      expect(find.textContaining('Chipethea'), findsNothing);
+    });
+
+    testWidgets('muestra listado de megacorporaciones del área visualizada', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          areaCells: {
+            1: {
+              (1, 1): CellData(sectionNumber: 111, megacorporation: 'Orion Holdings'),
+              (2, 2): CellData(sectionNumber: 256, megacorporation: 'Stellar Systems'),
+            },
+          },
+        ),
+      ));
+
+      await tester.ensureVisible(find.text('MEGACORPORACIONES'));
+
+      expect(find.text('MEGACORPORACIONES'), findsOneWidget);
+      expect(find.textContaining('Orion Holdings'), findsWidgets);
+      expect(find.textContaining('Stellar Systems'), findsWidgets);
+    });
+
+    testWidgets('listado de megacorporaciones usa el área visualizada, no la de la nave', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          areaCells: {
+            1: {
+              (2, 2): CellData(sectionNumber: 111, megacorporation: 'Orion Holdings'),
+            },
+            2: {
+              (1, 1): CellData(sectionNumber: 256, megacorporation: 'Stellar Systems'),
+            },
+          },
+        ),
+      ));
+
+      await tester.tap(find.widgetWithText(IconButton, '>'));
+      await tester.pump();
+
+      expect(find.textContaining('Stellar Systems'), findsOneWidget);
+      expect(find.textContaining('Orion Holdings'), findsNothing);
+    });
+
+    testWidgets('numeración de megacorporaciones es global entre áreas', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          areaCells: {
+            1: {
+              (1, 1): CellData(sectionNumber: 111, megacorporation: 'Orion Holdings'),
+            },
+            2: {
+              (1, 1): CellData(sectionNumber: 256, megacorporation: 'Stellar Systems'),
+            },
+          },
+        ),
+      ));
+
+      await tester.tap(find.widgetWithText(IconButton, '>'));
+      await tester.pump();
+
+      expect(find.textContaining('2. Stellar Systems'), findsOneWidget);
+    });
+
+    testWidgets('megacorporaciones se numeran por orden de aparición', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          areaCells: {
+            1: {
+              (1, 1): CellData(sectionNumber: 111, megacorporation: 'Orion Holdings'),
+              (2, 2): CellData(sectionNumber: 256, megacorporation: 'Stellar Systems'),
+              (3, 3): CellData(sectionNumber: 333, megacorporation: 'Orion Holdings'),
+            },
+          },
+        ),
+      ));
+
+      expect(find.textContaining('1. Orion Holdings'), findsOneWidget);
+      expect(find.textContaining('2. Stellar Systems'), findsOneWidget);
+    });
+
+    testWidgets('diálogo de edición muestra dado de megacorporación', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          areaCells: {1: {(1, 1): CellData(sectionNumber: 256)}},
+        ),
+      ));
+
+      final gridCells = find.descendant(
+        of: find.byType(AreaGrid),
+        matching: find.byType(GestureDetector),
+      );
+      await tester.longPress(gridCells.first);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Editar'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Megacorporación'), findsOneWidget);
+      expect(find.byIcon(Icons.casino_outlined), findsOneWidget);
+    });
+
+    testWidgets('dado de megacorporación rellena el campo con un nombre', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        initialState: BoardState(
+          areaCells: {1: {(1, 1): CellData(sectionNumber: 256)}},
+        ),
+      ));
+
+      final gridCells = find.descendant(
+        of: find.byType(AreaGrid),
+        matching: find.byType(GestureDetector),
+      );
+      await tester.longPress(gridCells.first);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Editar'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.casino_outlined));
+      await tester.pump();
+
+      final megacorpField = find.widgetWithText(TextField, 'Megacorporación');
+      final textField = tester.widget<TextField>(megacorpField);
+      expect(textField.controller!.text, isNotEmpty);
     });
   });
 }

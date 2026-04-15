@@ -74,7 +74,7 @@ void main() {
       expect(find.byIcon(Icons.swap_horiz), findsOneWidget);
     });
 
-    testWidgets('muestra botón de megacorp aleatoria', (tester) async {
+    testWidgets('no muestra botón de dado junto al nombre de compañía', (tester) async {
       await tester.pumpWidget(buildTestable(
         ShipInfoCard(
           companyName: '',
@@ -84,26 +84,7 @@ void main() {
         ),
       ));
 
-      expect(find.byIcon(Icons.casino_outlined), findsOneWidget);
-    });
-
-    testWidgets('al pulsar el dado de megacorp se notifica un nombre', (tester) async {
-      String? receivedName;
-
-      await tester.pumpWidget(buildTestable(
-        ShipInfoCard(
-          companyName: '',
-          ship: const Ship(),
-          onCompanyNameChanged: (name) => receivedName = name,
-          onShipChanged: (_) {},
-        ),
-      ));
-
-      await tester.tap(find.byIcon(Icons.casino_outlined));
-      await tester.pump();
-
-      expect(receivedName, isNotNull);
-      expect(receivedName, isNotEmpty);
+      expect(find.byIcon(Icons.casino_outlined), findsNothing);
     });
   });
 }

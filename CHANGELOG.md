@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.0
+
+- Dado de megacorporación movido al diálogo de edición de planeta en el tablero
+- Megacorporaciones numeradas globalmente con listado por área visualizada
+- Nueva sección "Ubicación de la nave" con info de espacio profundo, megacorporación y piratas
+- Planetas del área vinculados al área visualizada en vez de la posición de la nave
+
 ## 1.5.0
 
 - Botones de relleno rápido (mundo actual y fecha actual) en operaciones de comercio

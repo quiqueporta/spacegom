@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:spacegom_companion/models/area_sheet.dart';
 import 'package:spacegom_companion/models/board_state.dart';
 import 'package:spacegom_companion/models/cell_data.dart';
+import 'package:spacegom_companion/models/name_database.dart';
 import 'package:spacegom_companion/models/planet.dart';
 import 'package:spacegom_companion/widgets/area_grid.dart';
 
@@ -63,6 +64,32 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
 
   Map<(int, int), CellData> get _currentCells => _areaCells[_viewingArea] ?? {};
 
+  Set<String> _megacorpNamesInArea(int area) {
+    final cells = _areaCells[area];
+    if (cells == null) return {};
+
+    return cells.values
+        .map((c) => c.megacorporation)
+        .where((name) => name.isNotEmpty)
+        .toSet();
+  }
+
+  Map<String, int> get _allMegacorpNumbers {
+    final numbers = <String, int>{};
+    var nextNumber = 1;
+
+    for (final cells in _areaCells.values) {
+      for (final cell in cells.values) {
+        final name = cell.megacorporation;
+        if (name.isEmpty || numbers.containsKey(name)) continue;
+
+        numbers[name] = nextNumber++;
+      }
+    }
+
+    return numbers;
+  }
+
   BoardState _buildState() {
     return BoardState(
       shipArea: _shipArea,
@@ -98,11 +125,11 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
 
           const SizedBox(height: 8),
 
-          _buildTypeIndicators(),
-
-          _buildCurrentPlanetInfo(),
+          _buildShipLocation(),
 
           _buildAreaPlanets(),
+
+          _buildAreaMegacorps(),
         ],
       ),
     );
@@ -259,6 +286,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
                 onCellTap: _onCellTap,
                 onCellLongPress: _onCellLongPress,
                 shipPosition: _viewingShipArea ? (_shipRow, _shipCol) : null,
+                megacorpNumbers: _allMegacorpNumbers,
               ),
             ),
 
@@ -277,6 +305,27 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
       icon: Icon(icon, color: const Color(0xFF484F58), size: 40),
       constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
       padding: EdgeInsets.zero,
+    );
+  }
+
+  Widget _buildShipLocation() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'UBICACIÓN DE LA NAVE',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF8B949E)),
+          ),
+
+          const SizedBox(height: 6),
+
+          _buildTypeIndicators(),
+
+          _buildCurrentPlanetInfo(),
+        ],
+      ),
     );
   }
 
@@ -554,9 +603,25 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
                   ],
                 ),
 
-                TextField(
-                  controller: megacorpController,
-                  decoration: const InputDecoration(labelText: 'Megacorporación'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: megacorpController,
+                        decoration: const InputDecoration(labelText: 'Megacorporación'),
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    IconButton(
+                      icon: const Icon(Icons.casino_outlined),
+                      tooltip: 'Nombre aleatorio',
+                      onPressed: () {
+                        megacorpController.text = NameDatabase.randomMegacorpName();
+                      },
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 12),
@@ -709,7 +774,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
   static const _productCodes = ['INDU', 'BASI', 'ALIM', 'MADE', 'AGUA', 'MICO', 'MIRA', 'MIPR', 'PAVA', 'A', 'AE', 'AEI', 'COM'];
 
   Widget _buildAreaPlanets() {
-    final cells = _areaCells[_shipArea];
+    final cells = _areaCells[_viewingArea];
     if (cells == null) return const SizedBox.shrink();
 
     final planets = <int, Planet>{};
@@ -722,7 +787,8 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
 
     if (planets.isEmpty) return const SizedBox.shrink();
 
-    final currentSection = _areaCells[_shipArea]?[(_shipRow, _shipCol)]?.sectionNumber;
+    final shipCell = _areaCells[_shipArea]?[(_shipRow, _shipCol)];
+    final currentSection = _viewingShipArea ? shipCell?.sectionNumber : null;
 
     return Padding(
       padding: const EdgeInsets.only(top: 12),
@@ -740,6 +806,37 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
             scrollDirection: Axis.horizontal,
             child: _buildPlanetsProductMatrix(planets, currentSection),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAreaMegacorps() {
+    final areaMegacorps = _megacorpNamesInArea(_viewingArea);
+    if (areaMegacorps.isEmpty) return const SizedBox.shrink();
+
+    final allNumbers = _allMegacorpNumbers;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'MEGACORPORACIONES',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF8B949E)),
+          ),
+
+          const SizedBox(height: 6),
+
+          for (final name in areaMegacorps)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Text(
+                '${allNumbers[name]}. $name',
+                style: const TextStyle(fontSize: 12, color: Color(0xFFBC8CFF)),
+              ),
+            ),
         ],
       ),
     );
@@ -813,9 +910,45 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
     );
   }
 
+  Widget _buildDeepSpaceInfo(CellData cell) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: const Color(0xFF161B22),
+          border: Border.all(color: const Color(0xFF30363D)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Espacio profundo',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+
+            if (cell.megacorporation.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              _planetInfoRow('Megacorporación', cell.megacorporation),
+            ],
+
+            if (cell.pirates) ...[
+              const SizedBox(height: 6),
+              _planetInfoRow('Piratas', 'Sí'),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildCurrentPlanetInfo() {
     final cell = _areaCells[_shipArea]?[(_shipRow, _shipCol)];
-    if (cell == null || cell.isDeepSpace) return const SizedBox.shrink();
+    if (cell == null) return const SizedBox.shrink();
+
+    if (cell.isDeepSpace) return _buildDeepSpaceInfo(cell);
 
     final planet = PlanetDatabase.planets[cell.sectionNumber];
     if (planet == null) return const SizedBox.shrink();
@@ -846,6 +979,12 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
             _planetInfoRow('Autosuficiencia', '${planet.selfSufficiency}'),
             _planetInfoRow('UCN/pedido', '${planet.ucnPerOrder}'),
             _planetInfoRow('Pasajeros', '${planet.passengers}'),
+
+            if (cell.megacorporation.isNotEmpty)
+              _planetInfoRow('Megacorporación', cell.megacorporation),
+
+            if (cell.pirates)
+              _planetInfoRow('Piratas', 'Sí'),
 
             const SizedBox(height: 8),
 

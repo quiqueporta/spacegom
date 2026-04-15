@@ -102,6 +102,34 @@ void main() {
       expect(border111.top.color, border222.top.color);
     });
 
+    testWidgets('muestra número de megacorporación en la celda', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        AreaGrid(
+          cells: {(1, 1): CellData(sectionNumber: 111, megacorporation: 'Orion Holdings')},
+          onCellTap: (_, __) {},
+          megacorpNumbers: {'Orion Holdings': 1},
+        ),
+      ));
+
+      expect(find.text('1'), findsWidgets);
+    });
+
+    testWidgets('dos celdas con misma megacorporación muestran el mismo número', (tester) async {
+      await tester.pumpWidget(buildTestable(
+        AreaGrid(
+          cells: {
+            (1, 1): CellData(sectionNumber: 111, megacorporation: 'Orion Holdings'),
+            (2, 2): CellData(sectionNumber: 256, megacorporation: 'Orion Holdings'),
+          },
+          onCellTap: (_, __) {},
+          megacorpNumbers: {'Orion Holdings': 1},
+        ),
+      ));
+
+      final megacorpLabels = find.text('1');
+      expect(megacorpLabels, findsAtLeast(2));
+    });
+
     testWidgets('llama onCellLongPress al mantener pulsada una celda', (tester) async {
       int? longPressedRow;
       int? longPressedCol;

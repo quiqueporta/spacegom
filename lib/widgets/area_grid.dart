@@ -7,6 +7,7 @@ class AreaGrid extends StatelessWidget {
   final void Function(int row, int col) onCellTap;
   final void Function(int row, int col)? onCellLongPress;
   final (int, int)? shipPosition;
+  final Map<String, int> megacorpNumbers;
 
   static const _columns = ['A', 'B', 'C', 'D', 'E', 'F'];
   static const _borderColor = Color(0xFF30363D);
@@ -20,6 +21,7 @@ class AreaGrid extends StatelessWidget {
     required this.onCellTap,
     this.onCellLongPress,
     this.shipPosition,
+    this.megacorpNumbers = const {},
   });
 
   @override
@@ -155,14 +157,12 @@ class AreaGrid extends StatelessWidget {
                 child: Text('☠', style: TextStyle(fontSize: 8)),
               ),
 
-            if (cellData != null && cellData.megacorporation.isNotEmpty)
+            if (cellData != null && cellData.megacorporation.isNotEmpty && megacorpNumbers.containsKey(cellData.megacorporation))
               Positioned(
                 bottom: 0,
                 left: 1,
                 child: Text(
-                  cellData.megacorporation.length > 3
-                      ? cellData.megacorporation.substring(0, 3)
-                      : cellData.megacorporation,
+                  '${megacorpNumbers[cellData.megacorporation]}',
                   style: const TextStyle(fontSize: 6, color: Color(0xFFBC8CFF)),
                 ),
               ),
