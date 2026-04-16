@@ -257,7 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   showAboutDialog(
                     context: context,
                     applicationName: 'Spacegom Companion',
-                    applicationVersion: '1.7.0',
+                    applicationVersion: '1.7.1',
                     applicationIcon: Image.asset(
                       'assets/spacegom_logo.png',
                       width: 48,

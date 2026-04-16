@@ -107,9 +107,11 @@ class Company {
       moderateDamage: json['moderateDamage'] as int? ?? 0,
       severeDamage: json['severeDamage'] as int? ?? 0,
       saludMarks: json['saludMarks'] as int? ?? 0,
-      employees: (json['employees'] as List<dynamic>?)
-          ?.map((e) => Employee.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [],
+      employees: _deduplicateEmployeeIds(
+        (json['employees'] as List<dynamic>?)
+            ?.map((e) => Employee.fromJson(e as Map<String, dynamic>))
+            .toList() ?? [],
+      ),
       weapons: (json['weapons'] as List<dynamic>?)
           ?.map((w) => Weapon.fromJson(w as Map<String, dynamic>))
           .toList() ?? [],
@@ -119,6 +121,24 @@ class Company {
           ? Treasury.fromJson(json['treasury'] as Map<String, dynamic>)
           : const Treasury(),
     );
+  }
+
+  static List<Employee> _deduplicateEmployeeIds(List<Employee> employees) {
+    final seenIds = <int>{};
+    var maxId = employees.fold(0, (max, e) => e.id > max ? e.id : max);
+    final result = <Employee>[];
+
+    for (final employee in employees) {
+      if (seenIds.contains(employee.id)) {
+        maxId++;
+        result.add(employee.copyWith(id: maxId));
+      } else {
+        seenIds.add(employee.id);
+        result.add(employee);
+      }
+    }
+
+    return result;
   }
 
   static Ship _legacyShipFromJson(Map<String, dynamic> json) {

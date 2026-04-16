@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.1
+
+- Corregido bug de IDs duplicados al crear tripulante tras reordenar la lista
+- Migración automática de datos existentes con IDs duplicados
+
 ## 1.7.0
 
 - Reordenación de tripulantes mediante drag & drop con auto-scroll

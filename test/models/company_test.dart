@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:spacegom_companion/models/company.dart';
 import 'package:spacegom_companion/models/employee.dart';
 import 'package:spacegom_companion/models/ship.dart';
+import 'package:spacegom_companion/models/weapon.dart';
 
 void main() {
   group('Company', () {
@@ -118,6 +119,69 @@ void main() {
       expect(restored.lifeSupportEquipment['MF'], 5);
       expect(restored.lifeSupportEquipment['TE'], 1);
       expect(restored.lifeSupportEquipment.length, 3);
+    });
+
+    test('fromJson corrige IDs duplicados de empleados', () {
+      final json = Company(
+        employees: [
+          Employee(id: 3, name: 'Ana'),
+          Employee(id: 1, name: 'Luis'),
+          Employee(id: 2, name: 'Marta'),
+          Employee(id: 1, name: 'Pedro'),
+        ],
+      ).toJson();
+
+      final restored = Company.fromJson(json);
+
+      final ids = restored.employees.map((e) => e.id).toSet();
+      expect(ids.length, restored.employees.length);
+
+      expect(restored.employees[0].name, 'Ana');
+      expect(restored.employees[0].id, 3);
+      expect(restored.employees[1].name, 'Luis');
+      expect(restored.employees[1].id, 1);
+      expect(restored.employees[2].name, 'Marta');
+      expect(restored.employees[2].id, 2);
+      expect(restored.employees[3].name, 'Pedro');
+      expect(restored.employees[3].id, 4);
+    });
+
+    test('fromJson actualiza referencias de armas al corregir IDs duplicados', () {
+      final json = Company(
+        employees: [
+          Employee(id: 3, name: 'Ana'),
+          Employee(id: 1, name: 'Luis'),
+          Employee(id: 1, name: 'Pedro'),
+        ],
+        weapons: [
+          Weapon(employeeId: 1, weaponName: 'Láser ligero'),
+        ],
+      ).toJson();
+
+      final restored = Company.fromJson(json);
+
+      final pedro = restored.employees[2];
+      expect(pedro.name, 'Pedro');
+      expect(pedro.id, isNot(1));
+
+      expect(restored.weapons[0].employeeId, 1);
+    });
+
+    test('fromJson sin duplicados no modifica nada', () {
+      final original = Company(
+        employees: [
+          Employee(id: 5, name: 'Ana'),
+          Employee(id: 2, name: 'Luis'),
+          Employee(id: 8, name: 'Marta'),
+        ],
+      );
+
+      final json = original.toJson();
+      final restored = Company.fromJson(json);
+
+      expect(restored.employees[0].id, 5);
+      expect(restored.employees[1].id, 2);
+      expect(restored.employees[2].id, 8);
     });
 
     test('compatibilidad con formato antiguo sin ships', () {

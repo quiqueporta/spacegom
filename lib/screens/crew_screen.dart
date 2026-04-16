@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'package:spacegom_companion/models/employee.dart';
@@ -139,7 +141,9 @@ class _CrewScreenState extends State<CrewScreen> with AutomaticKeepAliveClientMi
   }
 
   Future<void> _addEmployee() async {
-    final nextId = _employees.isEmpty ? 1 : _employees.last.id + 1;
+    final nextId = _employees.isEmpty
+        ? 1
+        : _employees.map((e) => e.id).reduce(max) + 1;
 
     final result = await Navigator.push<Employee>(
       context,
