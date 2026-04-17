@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.0
+
+- Diálogo unificado "Editar cuadrante" con selector de tipo (Sin asignar / Mundo / Espacio profundo); las celdas sin asignar ahora pueden tener megacorporación, piratas y notas
+- Las armas se pueden asignar a la reserva de la nave o a un empleado
+- Calculadora automática de importe en compras y ventas: selector de multiplicador (×0.8, ×1.0, ×1.2) y campo de unidades vendidas (solo cálculo)
+- El valor de misiones (*10) de cada mundo es editable con botones +/− y persiste por planeta
+- Límite de 6 misiones especiales por área
+- Corregido reset de días hasta hiperdisparo al volver a un mundo con valor customizado
+- Unificada terminología: "sección" → "mundo" en toda la interfaz
+
 ## 1.7.1
 
 - Corregido bug de IDs duplicados al crear tripulante tras reordenar la lista
