@@ -11,6 +11,7 @@ class BoardState {
   final Map<int, Map<(int, int), CellData>> areaCells;
   final Map<int, AreaDensity> areaDensity;
   final Map<int, int> customHyperjumpDays;
+  final Map<int, int> customMissions;
   final String? selectedLocation;
 
   const BoardState({
@@ -24,6 +25,7 @@ class BoardState {
     this.areaCells = const {},
     this.areaDensity = const {},
     this.customHyperjumpDays = const {},
+    this.customMissions = const {},
     this.selectedLocation,
   });
 
@@ -38,6 +40,7 @@ class BoardState {
     Map<int, Map<(int, int), CellData>>? areaCells,
     Map<int, AreaDensity>? areaDensity,
     Map<int, int>? customHyperjumpDays,
+    Map<int, int>? customMissions,
     String? selectedLocation,
     bool clearLocation = false,
   }) {
@@ -52,6 +55,7 @@ class BoardState {
       areaCells: areaCells ?? this.areaCells,
       areaDensity: areaDensity ?? this.areaDensity,
       customHyperjumpDays: customHyperjumpDays ?? this.customHyperjumpDays,
+      customMissions: customMissions ?? this.customMissions,
       selectedLocation: clearLocation ? null : (selectedLocation ?? this.selectedLocation),
     );
   }
@@ -77,6 +81,7 @@ class BoardState {
     'areaCells': _areaCellsToJson(),
     'areaDensity': _areaDensityToJson(),
     'customHyperjumpDays': _customHyperjumpDaysToJson(),
+    'customMissions': _customMissionsToJson(),
     'selectedLocation': selectedLocation,
   };
 
@@ -91,6 +96,7 @@ class BoardState {
     areaCells: _areaCellsFromJson(json['areaCells']),
     areaDensity: _areaDensityFromJson(json['areaDensity']),
     customHyperjumpDays: _customHyperjumpDaysFromJson(json['customHyperjumpDays']),
+    customMissions: _customMissionsFromJson(json['customMissions']),
     selectedLocation: json['selectedLocation'] as String?,
   );
 
@@ -158,6 +164,18 @@ class BoardState {
   }
 
   static Map<int, int> _customHyperjumpDaysFromJson(dynamic raw) {
+    if (raw == null) return {};
+
+    final jsonMap = raw as Map<String, dynamic>;
+
+    return jsonMap.map((k, v) => MapEntry(int.parse(k), v as int));
+  }
+
+  Map<String, int> _customMissionsToJson() {
+    return customMissions.map((k, v) => MapEntry('$k', v));
+  }
+
+  static Map<int, int> _customMissionsFromJson(dynamic raw) {
     if (raw == null) return {};
 
     final jsonMap = raw as Map<String, dynamic>;

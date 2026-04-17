@@ -149,6 +149,49 @@ void main() {
       expect(original.customHyperjumpDays.length, 1);
     });
 
+    test('customMissions por defecto es mapa vacío', () {
+      final state = BoardState();
+
+      expect(state.customMissions, isEmpty);
+    });
+
+    test('toJson y fromJson preservan customMissions', () {
+      final state = BoardState(
+        customMissions: {256: 7, 111: 10, 666: 9},
+      );
+
+      final json = state.toJson();
+      final restored = BoardState.fromJson(json);
+
+      expect(restored.customMissions[256], 7);
+      expect(restored.customMissions[111], 10);
+      expect(restored.customMissions[666], 9);
+      expect(restored.customMissions.length, 3);
+    });
+
+    test('fromJson sin customMissions devuelve mapa vacío', () {
+      final legacyJson = <String, dynamic>{
+        'shipArea': 1,
+        'shipRow': 1,
+        'shipCol': 1,
+        'hyperjumpDays': 5,
+        'areaCells': <String, dynamic>{},
+      };
+
+      final restored = BoardState.fromJson(legacyJson);
+
+      expect(restored.customMissions, isEmpty);
+    });
+
+    test('copyWith actualiza customMissions', () {
+      final original = BoardState(customMissions: {256: 7});
+      final modified = original.copyWith(customMissions: {256: 7, 111: 10});
+
+      expect(modified.customMissions[111], 10);
+      expect(modified.customMissions[256], 7);
+      expect(original.customMissions.length, 1);
+    });
+
     test('deserializa formato antiguo con enteros en areaCells', () {
       final legacyJson = {
         'shipArea': 2,

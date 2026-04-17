@@ -37,6 +37,48 @@ void main() {
     });
   });
 
+  group('Planet.parsedMissions', () {
+    Planet planetWithMissions(String missions) => Planet(
+      name: 'X',
+      lifeSupport: '',
+      contagionRisk: '',
+      agreement: '',
+      hyperjumpDays: 0,
+      legalSystem: '',
+      spaceport: '',
+      cc: '',
+      pi: '',
+      ds: '',
+      aa: '',
+      products: const [],
+      selfSufficiency: 0,
+      ucnPerOrder: 0,
+      passengers: 0,
+      missions: missions,
+    );
+
+    test('parsea "10+" como 10', () {
+      expect(planetWithMissions('10+').parsedMissions, 10);
+    });
+
+    test('parsea "7+" como 7', () {
+      expect(planetWithMissions('7+').parsedMissions, 7);
+    });
+
+    test('parsea "8" sin más como 8', () {
+      expect(planetWithMissions('8').parsedMissions, 8);
+    });
+
+    test('parsea "0" como 0', () {
+      expect(planetWithMissions('0').parsedMissions, 0);
+    });
+
+    test('devuelve null si no es parseable', () {
+      expect(planetWithMissions('').parsedMissions, isNull);
+      expect(planetWithMissions('SIN').parsedMissions, isNull);
+    });
+  });
+
   group('PlanetDatabase', () {
     test('contiene 216 planetas', () {
       final db = PlanetDatabase.planets;

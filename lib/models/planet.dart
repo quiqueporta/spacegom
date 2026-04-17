@@ -37,6 +37,8 @@ class Planet {
     required this.missions,
   });
 
+  int? get parsedMissions => int.tryParse(missions.replaceAll('+', '').trim());
+
   Map<String, dynamic> toJson() => {
     'name': name,
     'lifeSupport': lifeSupport,

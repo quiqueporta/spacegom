@@ -39,6 +39,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
   late Map<int, Map<(int, int), CellData>> _areaCells;
   late Map<int, AreaDensity> _areaDensity;
   late Map<int, int> _customHyperjumpDays;
+  late Map<int, int> _customMissions;
 
   int _viewingArea = 1;
   LocationType? _selectedLocation;
@@ -60,6 +61,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
     _areaCells = Map.from(widget.initialState.areaCells);
     _areaDensity = Map.from(widget.initialState.areaDensity);
     _customHyperjumpDays = Map.from(widget.initialState.customHyperjumpDays);
+    _customMissions = Map.from(widget.initialState.customMissions);
     _selectedLocation = _locationFromString(widget.initialState.selectedLocation);
     _viewingArea = _shipArea;
   }
@@ -101,8 +103,20 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
       areaCells: Map.from(_areaCells),
       areaDensity: Map.from(_areaDensity),
       customHyperjumpDays: Map.from(_customHyperjumpDays),
+      customMissions: Map.from(_customMissions),
       selectedLocation: _selectedLocation?.name,
     );
+  }
+
+  int? _missionsForSection(int sectionNumber) {
+    return _customMissions[sectionNumber] ?? PlanetDatabase.planets[sectionNumber]?.parsedMissions;
+  }
+
+  void _seedMissionsForSection(int sectionNumber) {
+    if (_customMissions.containsKey(sectionNumber)) return;
+
+    final parsed = PlanetDatabase.planets[sectionNumber]?.parsedMissions;
+    if (parsed != null) _customMissions[sectionNumber] = parsed;
   }
 
   void _notifyChanged() => widget.onChanged(_buildState());
@@ -561,6 +575,9 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
     var pirates = cellData.pirates;
     var isDeepSpace = cellData.isDeepSpace;
     String? errorText;
+    var missionValue = cellData.sectionNumber != null
+        ? (_missionsForSection(cellData.sectionNumber!) ?? 0)
+        : 0;
 
     showDialog(
       context: context,
@@ -634,6 +651,35 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
                   ],
                 ),
 
+                if (!isDeepSpace) ...[
+                  const SizedBox(height: 12),
+
+                  Row(
+                    children: [
+                      const Text('Misiones'),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: () => setDialogState(() {
+                          if (missionValue > 0) missionValue--;
+                        }),
+                      ),
+                      SizedBox(
+                        width: 32,
+                        child: Text(
+                          '$missionValue',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () => setDialogState(() => missionValue++),
+                      ),
+                    ],
+                  ),
+                ],
+
                 const SizedBox(height: 12),
 
                 TextField(
@@ -677,6 +723,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
                     );
                   } else {
                     final number = int.tryParse(controller.text)!;
+                    final sectionChanged = number != cellData.sectionNumber;
 
                     _areaCells[_viewingArea]![(row, col)] = CellData(
                       sectionNumber: number,
@@ -684,6 +731,13 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
                       megacorporation: megacorpController.text.trim(),
                       notes: notesController.text.trim(),
                     );
+
+                    if (sectionChanged) {
+                      _customMissions.remove(cellData.sectionNumber);
+                      _seedMissionsForSection(number);
+                    } else {
+                      _customMissions[number] = missionValue;
+                    }
                   }
 
                   _notifyChanged();
@@ -768,6 +822,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
                   _areaCells[_viewingArea]![(row, col)] = CellData(
                     sectionNumber: number,
                   );
+                  _seedMissionsForSection(number);
                   _notifyChanged();
                 });
 
@@ -1172,7 +1227,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
                 _planetRow('*7 Autosuficiencia', '${planet.selfSufficiency}'),
                 _planetRow('*8 UCN por pedido', '${planet.ucnPerOrder}'),
                 _planetRow('*9 Pasajeros', '${planet.passengers}'),
-                _planetRow('*10 Misiones', planet.missions),
+                _planetRow('*10 Misiones', '${_missionsForSection(sectionNumber) ?? planet.missions}'),
               ],
             ),
           ),
