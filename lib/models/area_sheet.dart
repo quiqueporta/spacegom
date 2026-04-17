@@ -145,6 +145,14 @@ class ProductInfo {
     required this.productionDays,
     required this.demandDays,
   });
+
+  int calculatePurchase({required double multiplier, required int units}) {
+    return (purchasePrice * multiplier * units).ceil();
+  }
+
+  int calculateSale({required double multiplier, required int units}) {
+    return (salePrice * multiplier * units).ceil();
+  }
 }
 
 class ProductReference {

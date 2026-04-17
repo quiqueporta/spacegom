@@ -125,4 +125,54 @@ void main() {
       expect(mira.demandDays, 60);
     });
   });
+
+  group('ProductInfo cálculos', () {
+    final mira = ProductReference.products.firstWhere((p) => p.code == 'MIRA');
+
+    test('calculatePurchase con multiplicador 1.0', () {
+      expect(mira.calculatePurchase(multiplier: 1.0, units: 10), 130);
+    });
+
+    test('calculatePurchase con multiplicador 1.2', () {
+      expect(mira.calculatePurchase(multiplier: 1.2, units: 10), 156);
+    });
+
+    test('calculatePurchase con multiplicador 0.8', () {
+      expect(mira.calculatePurchase(multiplier: 0.8, units: 10), 104);
+    });
+
+    test('calculateSale con multiplicador 1.0', () {
+      expect(mira.calculateSale(multiplier: 1.0, units: 10), 300);
+    });
+
+    test('calculateSale con multiplicador 1.2', () {
+      expect(mira.calculateSale(multiplier: 1.2, units: 10), 360);
+    });
+
+    test('calculateSale con multiplicador 0.8', () {
+      expect(mira.calculateSale(multiplier: 0.8, units: 10), 240);
+    });
+
+    test('calculatePurchase con 0 unidades devuelve 0', () {
+      expect(mira.calculatePurchase(multiplier: 1.2, units: 0), 0);
+    });
+
+    test('calculatePurchase redondea al alza con multiplicador 1.2', () {
+      final indu = ProductReference.products.firstWhere((p) => p.code == 'INDU');
+      // 9 * 1.2 * 1 = 10.8 → 11
+      expect(indu.calculatePurchase(multiplier: 1.2, units: 1), 11);
+    });
+
+    test('calculatePurchase redondea al alza con multiplicador 0.8', () {
+      final indu = ProductReference.products.firstWhere((p) => p.code == 'INDU');
+      // 9 * 0.8 * 1 = 7.2 → 8 (ceil, no round → 7)
+      expect(indu.calculatePurchase(multiplier: 0.8, units: 1), 8);
+    });
+
+    test('calculateSale redondea al alza', () {
+      final indu = ProductReference.products.firstWhere((p) => p.code == 'INDU');
+      // 18 * 0.8 * 1 = 14.4 → 15
+      expect(indu.calculateSale(multiplier: 0.8, units: 1), 15);
+    });
+  });
 }

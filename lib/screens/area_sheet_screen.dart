@@ -453,9 +453,31 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
     final saleWorldCtrl = TextEditingController(text: existing?.saleWorld ?? '');
     final saleAmountCtrl = TextEditingController(text: existing != null && existing.saleAmount > 0 ? '${existing.saleAmount}' : '');
     final saleDateCtrl = TextEditingController(text: existing?.saleDate ?? '');
+    final soldUnitsCtrl = TextEditingController();
     var selectedProduct = existing?.productCode ?? ProductReference.products.first.code;
     var traceability = existing?.traceability ?? false;
     var voided = existing?.voided ?? false;
+    var purchaseMultiplier = 1.0;
+    var saleMultiplier = 1.0;
+
+    ProductInfo currentProduct() =>
+        ProductReference.products.firstWhere((p) => p.code == selectedProduct);
+
+    void recalcPurchaseAmount() {
+      final units = int.tryParse(purchaseUnitsCtrl.text) ?? 0;
+      if (units == 0) return;
+
+      purchaseAmountCtrl.text =
+          '${currentProduct().calculatePurchase(multiplier: purchaseMultiplier, units: units)}';
+    }
+
+    void recalcSaleAmount() {
+      final units = int.tryParse(soldUnitsCtrl.text) ?? 0;
+      if (units == 0) return;
+
+      saleAmountCtrl.text =
+          '${currentProduct().calculateSale(multiplier: saleMultiplier, units: units)}';
+    }
 
     showDialog(
       context: context,
@@ -498,7 +520,13 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                     child: Text('${p.code} — ${p.productName}', style: const TextStyle(fontSize: 13)),
                   )).toList(),
                   onChanged: (v) {
-                    if (v != null) setDialogState(() => selectedProduct = v);
+                    if (v != null) {
+                      setDialogState(() {
+                        selectedProduct = v;
+                        recalcPurchaseAmount();
+                        recalcSaleAmount();
+                      });
+                    }
                   },
                 ),
 
@@ -506,11 +534,24 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                   controller: purchaseUnitsCtrl,
                   decoration: const InputDecoration(labelText: 'Unidades compradas'),
                   keyboardType: TextInputType.number,
+                  onChanged: (_) => recalcPurchaseAmount(),
+                ),
+
+                _buildMultiplierChips(
+                  'Multiplicador compra',
+                  purchaseMultiplier,
+                  (v) => setDialogState(() {
+                    purchaseMultiplier = v;
+                    recalcPurchaseAmount();
+                  }),
                 ),
 
                 TextField(
                   controller: purchaseAmountCtrl,
-                  decoration: const InputDecoration(labelText: 'Importe compra (SC)'),
+                  decoration: InputDecoration(
+                    labelText: 'Importe compra (SC)',
+                    helperText: 'Precio base: ${currentProduct().purchasePrice} SC',
+                  ),
                   keyboardType: TextInputType.number,
                 ),
 
@@ -554,8 +595,30 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                 ),
 
                 TextField(
+                  controller: soldUnitsCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Unidades vendidas',
+                    helperText: 'Solo para cálculo, no se guarda',
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (_) => recalcSaleAmount(),
+                ),
+
+                _buildMultiplierChips(
+                  'Multiplicador venta',
+                  saleMultiplier,
+                  (v) => setDialogState(() {
+                    saleMultiplier = v;
+                    recalcSaleAmount();
+                  }),
+                ),
+
+                TextField(
                   controller: saleAmountCtrl,
-                  decoration: const InputDecoration(labelText: 'Importe venta (SC)'),
+                  decoration: InputDecoration(
+                    labelText: 'Importe venta (SC)',
+                    helperText: 'Precio base: ${currentProduct().salePrice} SC',
+                  ),
                   keyboardType: TextInputType.number,
                 ),
 
@@ -635,6 +698,32 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMultiplierChips(String label, double selected, ValueChanged<double> onSelected) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF8B949E))),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 6,
+            children: [
+              for (final mult in [0.8, 1.0, 1.2])
+                ChoiceChip(
+                  label: Text('×$mult'),
+                  selected: selected == mult,
+                  onSelected: (v) { if (v) onSelected(mult); },
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
