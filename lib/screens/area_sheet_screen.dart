@@ -73,13 +73,13 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'MISIONES ESPECIALES',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            Text(
+              'MISIONES ESPECIALES (${_missions.length}/${AreaSheet.maxSpecialMissions})',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
 
             IconButton(
-              onPressed: _addMission,
+              onPressed: _missions.length < AreaSheet.maxSpecialMissions ? _addMission : null,
               icon: const Icon(Icons.add, size: 20),
             ),
           ],

@@ -31,6 +31,59 @@ void main() {
       expect(find.textContaining('COMERCIO'), findsOneWidget);
     });
 
+    testWidgets('muestra contador de misiones con límite 6', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: AreaSheetScreen(
+          area: 1,
+          sheet: AreaSheet(
+            missions: [
+              SpecialMission(code: 'M-01'),
+              SpecialMission(code: 'M-02'),
+            ],
+          ),
+          onChanged: (_) {},
+        ),
+      ));
+
+      expect(find.textContaining('MISIONES ESPECIALES (2/6)'), findsOneWidget);
+    });
+
+    testWidgets('deshabilita botón de añadir misión al llegar al límite', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: AreaSheetScreen(
+          area: 1,
+          sheet: AreaSheet(
+            missions: List.generate(6, (i) => SpecialMission(code: 'M-0$i')),
+          ),
+          onChanged: (_) {},
+        ),
+      ));
+
+      final addButton = tester.widget<IconButton>(find.byIcon(Icons.add).first.evaluate().first.widget is IconButton
+          ? find.byIcon(Icons.add).first
+          : find.ancestor(of: find.byIcon(Icons.add).first, matching: find.byType(IconButton)).first);
+
+      expect(addButton.onPressed, isNull);
+    });
+
+    testWidgets('botón de añadir misión habilitado por debajo del límite', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: AreaSheetScreen(
+          area: 1,
+          sheet: AreaSheet(
+            missions: List.generate(5, (i) => SpecialMission(code: 'M-0$i')),
+          ),
+          onChanged: (_) {},
+        ),
+      ));
+
+      final addButton = tester.widget<IconButton>(
+        find.ancestor(of: find.byIcon(Icons.add).first, matching: find.byType(IconButton)).first,
+      );
+
+      expect(addButton.onPressed, isNotNull);
+    });
+
     testWidgets('muestra misiones existentes', (tester) async {
       await tester.pumpWidget(MaterialApp(
         home: AreaSheetScreen(

@@ -94,6 +94,8 @@ class TradeRecord {
 }
 
 class AreaSheet {
+  static const int maxSpecialMissions = 6;
+
   final List<SpecialMission> missions;
   final List<TradeRecord> trades;
 
