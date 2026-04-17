@@ -30,13 +30,15 @@ class WeaponReference {
 }
 
 class Weapon {
-  final int employeeId;
+  final int? employeeId;
   final String weaponName;
 
   const Weapon({
     required this.employeeId,
     this.weaponName = 'Desarmado',
   });
+
+  bool get isInReserve => employeeId == null;
 
   WeaponType? get weaponType =>
       WeaponReference.weapons.where((w) => w.weaponName == weaponName).firstOrNull;
@@ -47,7 +49,7 @@ class Weapon {
   };
 
   factory Weapon.fromJson(Map<String, dynamic> json) => Weapon(
-    employeeId: json['employeeId'] as int,
+    employeeId: json['employeeId'] as int?,
     weaponName: json['weaponName'] as String? ?? 'Desarmado',
   );
 }

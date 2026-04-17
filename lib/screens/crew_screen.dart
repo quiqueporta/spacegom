@@ -210,14 +210,16 @@ class _CrewScreenState extends State<CrewScreen> with AutomaticKeepAliveClientMi
     );
   }
 
-  String _employeeName(int id) {
-    final employee = _employees.where((e) => e.id == id).firstOrNull;
+  String _weaponOwnerLabel(int? employeeId) {
+    if (employeeId == null) return 'Reserva';
 
-    if (employee == null) return '#$id';
+    final employee = _employees.where((e) => e.id == employeeId).firstOrNull;
+
+    if (employee == null) return '#$employeeId';
     if (employee.name.isNotEmpty) return employee.name;
     if (employee.role.isNotEmpty) return employee.role;
 
-    return '#$id';
+    return '#$employeeId';
   }
 
   Widget _buildWeapons() {
@@ -272,7 +274,7 @@ class _CrewScreenState extends State<CrewScreen> with AutomaticKeepAliveClientMi
               SizedBox(
                 width: 80,
                 child: Text(
-                  _employeeName(weapon.employeeId),
+                  _weaponOwnerLabel(weapon.employeeId),
                   style: const TextStyle(fontSize: 11, color: Color(0xFF8B949E)),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -306,8 +308,10 @@ class _CrewScreenState extends State<CrewScreen> with AutomaticKeepAliveClientMi
     );
   }
 
+  static const _reserveOption = -1;
+
   void _addWeapon() {
-    int? selectedEmployeeId;
+    int? selectedOption;
     String selectedWeaponName = WeaponReference.weapons.first.weaponName;
 
     showDialog(
@@ -319,14 +323,20 @@ class _CrewScreenState extends State<CrewScreen> with AutomaticKeepAliveClientMi
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButton<int>(
-                value: selectedEmployeeId,
+                value: selectedOption,
                 isExpanded: true,
-                hint: const Text('Empleado'),
-                items: _employees.map((e) => DropdownMenuItem(
-                  value: e.id,
-                  child: Text('${e.id} - ${e.name.isEmpty ? e.role : e.name}'),
-                )).toList(),
-                onChanged: (v) => setDialogState(() => selectedEmployeeId = v),
+                hint: const Text('Destinatario'),
+                items: [
+                  const DropdownMenuItem(
+                    value: _reserveOption,
+                    child: Text('Reserva de la nave'),
+                  ),
+                  ..._employees.map((e) => DropdownMenuItem(
+                    value: e.id,
+                    child: Text('${e.id} - ${e.name.isEmpty ? e.role : e.name}'),
+                  )),
+                ],
+                onChanged: (v) => setDialogState(() => selectedOption = v),
               ),
 
               const SizedBox(height: 8),
@@ -350,9 +360,10 @@ class _CrewScreenState extends State<CrewScreen> with AutomaticKeepAliveClientMi
               child: const Text('Cancelar'),
             ),
             TextButton(
-              onPressed: selectedEmployeeId != null ? () {
+              onPressed: selectedOption != null ? () {
                 setState(() {
-                  _weapons.add(Weapon(employeeId: selectedEmployeeId!, weaponName: selectedWeaponName));
+                  final employeeId = selectedOption == _reserveOption ? null : selectedOption;
+                  _weapons.add(Weapon(employeeId: employeeId, weaponName: selectedWeaponName));
                   _notifyChanged();
                 });
                 Navigator.pop(ctx);
@@ -367,12 +378,15 @@ class _CrewScreenState extends State<CrewScreen> with AutomaticKeepAliveClientMi
 
   void _deleteWeapon(int index) {
     final weapon = _weapons[index];
+    final owner = weapon.isInReserve
+        ? 'de la reserva de la nave'
+        : 'del empleado #${weapon.employeeId}';
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Eliminar arma'),
-        content: Text('¿Eliminar ${weapon.weaponName} del empleado #${weapon.employeeId}?'),
+        content: Text('¿Eliminar ${weapon.weaponName} $owner?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),

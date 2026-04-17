@@ -37,5 +37,40 @@ void main() {
 
       expect(weapon.weaponName, 'Desarmado');
     });
+
+    test('arma en reserva tiene employeeId null', () {
+      final weapon = Weapon(employeeId: null, weaponName: 'Rifle láser');
+
+      expect(weapon.employeeId, isNull);
+      expect(weapon.isInReserve, isTrue);
+    });
+
+    test('arma asignada a empleado no está en reserva', () {
+      final weapon = Weapon(employeeId: 5, weaponName: 'Rifle láser');
+
+      expect(weapon.isInReserve, isFalse);
+    });
+
+    test('toJson y fromJson preservan employeeId null (reserva)', () {
+      final weapon = Weapon(employeeId: null, weaponName: 'Rifle láser');
+
+      final json = weapon.toJson();
+      final restored = Weapon.fromJson(json);
+
+      expect(restored.employeeId, isNull);
+      expect(restored.isInReserve, isTrue);
+    });
+
+    test('fromJson con formato antiguo (employeeId no null) funciona', () {
+      final legacyJson = <String, dynamic>{
+        'employeeId': 3,
+        'weaponName': 'Armas láser básicas',
+      };
+
+      final restored = Weapon.fromJson(legacyJson);
+
+      expect(restored.employeeId, 3);
+      expect(restored.isInReserve, isFalse);
+    });
   });
 }
