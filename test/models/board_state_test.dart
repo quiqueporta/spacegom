@@ -106,6 +106,49 @@ void main() {
       expect(state.findAreaForSection(256), 3);
     });
 
+    test('customHyperjumpDays por defecto es mapa vacío', () {
+      final state = BoardState();
+
+      expect(state.customHyperjumpDays, isEmpty);
+    });
+
+    test('toJson y fromJson preservan customHyperjumpDays', () {
+      final state = BoardState(
+        customHyperjumpDays: {256: 5, 111: 3, 666: 12},
+      );
+
+      final json = state.toJson();
+      final restored = BoardState.fromJson(json);
+
+      expect(restored.customHyperjumpDays[256], 5);
+      expect(restored.customHyperjumpDays[111], 3);
+      expect(restored.customHyperjumpDays[666], 12);
+      expect(restored.customHyperjumpDays.length, 3);
+    });
+
+    test('fromJson sin customHyperjumpDays devuelve mapa vacío', () {
+      final legacyJson = <String, dynamic>{
+        'shipArea': 1,
+        'shipRow': 1,
+        'shipCol': 1,
+        'hyperjumpDays': 5,
+        'areaCells': <String, dynamic>{},
+      };
+
+      final restored = BoardState.fromJson(legacyJson);
+
+      expect(restored.customHyperjumpDays, isEmpty);
+    });
+
+    test('copyWith actualiza customHyperjumpDays', () {
+      final original = BoardState(customHyperjumpDays: {256: 5});
+      final modified = original.copyWith(customHyperjumpDays: {256: 5, 111: 7});
+
+      expect(modified.customHyperjumpDays[111], 7);
+      expect(modified.customHyperjumpDays[256], 5);
+      expect(original.customHyperjumpDays.length, 1);
+    });
+
     test('deserializa formato antiguo con enteros en areaCells', () {
       final legacyJson = {
         'shipArea': 2,

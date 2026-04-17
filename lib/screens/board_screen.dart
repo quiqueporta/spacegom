@@ -38,6 +38,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
   late int _hyperjumpDays;
   late Map<int, Map<(int, int), CellData>> _areaCells;
   late Map<int, AreaDensity> _areaDensity;
+  late Map<int, int> _customHyperjumpDays;
 
   int _viewingArea = 1;
   LocationType? _selectedLocation;
@@ -58,6 +59,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
     _hyperjumpDays = widget.initialState.hyperjumpDays;
     _areaCells = Map.from(widget.initialState.areaCells);
     _areaDensity = Map.from(widget.initialState.areaDensity);
+    _customHyperjumpDays = Map.from(widget.initialState.customHyperjumpDays);
     _selectedLocation = _locationFromString(widget.initialState.selectedLocation);
     _viewingArea = _shipArea;
   }
@@ -98,6 +100,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
       hyperjumpDays: _hyperjumpDays,
       areaCells: Map.from(_areaCells),
       areaDensity: Map.from(_areaDensity),
+      customHyperjumpDays: Map.from(_customHyperjumpDays),
       selectedLocation: _selectedLocation?.name,
     );
   }
@@ -390,14 +393,21 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
 
   void _updateHyperjumpDaysFromPosition() {
     final cellData = _areaCells[_shipArea]?[(_shipRow, _shipCol)];
+    final sectionNumber = cellData?.sectionNumber;
 
-    if (cellData == null) return;
+    if (sectionNumber == null) return;
 
-    final planet = PlanetDatabase.planets[cellData.sectionNumber];
+    _hyperjumpDays = _hyperjumpDaysForSection(sectionNumber);
+  }
 
-    if (planet != null) {
-      _hyperjumpDays = planet.hyperjumpDays;
-    }
+  int _hyperjumpDaysForSection(int sectionNumber) {
+    final custom = _customHyperjumpDays[sectionNumber];
+
+    if (custom != null) return custom;
+
+    final planet = PlanetDatabase.planets[sectionNumber];
+
+    return planet?.hyperjumpDays ?? _hyperjumpDays;
   }
 
   void _moveShip(int dRow, int dCol) {
@@ -1112,7 +1122,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
     }
 
     setState(() {
-      _hyperjumpDays = planet.hyperjumpDays;
+      _hyperjumpDays = _hyperjumpDaysForSection(sectionNumber);
       _notifyChanged();
     });
 
@@ -1214,6 +1224,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
               if (value != null) {
                 setState(() {
                   _hyperjumpDays = value;
+                  _persistCustomHyperjumpDays(value);
                   _notifyChanged();
                 });
               }
@@ -1225,6 +1236,14 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
         ],
       ),
     );
+  }
+
+  void _persistCustomHyperjumpDays(int value) {
+    final sectionNumber = _areaCells[_shipArea]?[(_shipRow, _shipCol)]?.sectionNumber;
+
+    if (sectionNumber == null) return;
+
+    _customHyperjumpDays[sectionNumber] = value;
   }
 
   void _showDensityDialog() {

@@ -10,6 +10,7 @@ class BoardState {
   final int hyperjumpDays;
   final Map<int, Map<(int, int), CellData>> areaCells;
   final Map<int, AreaDensity> areaDensity;
+  final Map<int, int> customHyperjumpDays;
   final String? selectedLocation;
 
   const BoardState({
@@ -22,6 +23,7 @@ class BoardState {
     this.hyperjumpDays = 0,
     this.areaCells = const {},
     this.areaDensity = const {},
+    this.customHyperjumpDays = const {},
     this.selectedLocation,
   });
 
@@ -35,6 +37,7 @@ class BoardState {
     int? hyperjumpDays,
     Map<int, Map<(int, int), CellData>>? areaCells,
     Map<int, AreaDensity>? areaDensity,
+    Map<int, int>? customHyperjumpDays,
     String? selectedLocation,
     bool clearLocation = false,
   }) {
@@ -48,6 +51,7 @@ class BoardState {
       hyperjumpDays: hyperjumpDays ?? this.hyperjumpDays,
       areaCells: areaCells ?? this.areaCells,
       areaDensity: areaDensity ?? this.areaDensity,
+      customHyperjumpDays: customHyperjumpDays ?? this.customHyperjumpDays,
       selectedLocation: clearLocation ? null : (selectedLocation ?? this.selectedLocation),
     );
   }
@@ -72,6 +76,7 @@ class BoardState {
     'hyperjumpDays': hyperjumpDays,
     'areaCells': _areaCellsToJson(),
     'areaDensity': _areaDensityToJson(),
+    'customHyperjumpDays': _customHyperjumpDaysToJson(),
     'selectedLocation': selectedLocation,
   };
 
@@ -85,6 +90,7 @@ class BoardState {
     hyperjumpDays: json['hyperjumpDays'] as int? ?? 0,
     areaCells: _areaCellsFromJson(json['areaCells']),
     areaDensity: _areaDensityFromJson(json['areaDensity']),
+    customHyperjumpDays: _customHyperjumpDaysFromJson(json['customHyperjumpDays']),
     selectedLocation: json['selectedLocation'] as String?,
   );
 
@@ -145,5 +151,17 @@ class BoardState {
     return jsonMap.map(
       (k, v) => MapEntry(int.parse(k), AreaDensityExtension.fromJson(v as String)),
     );
+  }
+
+  Map<String, int> _customHyperjumpDaysToJson() {
+    return customHyperjumpDays.map((k, v) => MapEntry('$k', v));
+  }
+
+  static Map<int, int> _customHyperjumpDaysFromJson(dynamic raw) {
+    if (raw == null) return {};
+
+    final jsonMap = raw as Map<String, dynamic>;
+
+    return jsonMap.map((k, v) => MapEntry(int.parse(k), v as int));
   }
 }
