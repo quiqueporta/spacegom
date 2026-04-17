@@ -475,7 +475,7 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                     Expanded(
                       child: TextField(
                         controller: purchaseWorldCtrl,
-                        decoration: const InputDecoration(labelText: 'Mundo (nº sección)'),
+                        decoration: const InputDecoration(labelText: 'Nº mundo'),
                         keyboardType: TextInputType.number,
                         autofocus: !isEditing,
                       ),
@@ -539,7 +539,7 @@ class _AreaSheetScreenState extends State<AreaSheetScreen> {
                     Expanded(
                       child: TextField(
                         controller: saleWorldCtrl,
-                        decoration: const InputDecoration(labelText: 'Mundo (nº sección)'),
+                        decoration: const InputDecoration(labelText: 'Nº mundo'),
                         keyboardType: TextInputType.number,
                       ),
                     ),

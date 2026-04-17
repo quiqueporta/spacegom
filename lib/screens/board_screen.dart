@@ -494,7 +494,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
               children: [
                 Icon(Icons.public, size: 20, color: Color(0xFF58A6FF)),
                 SizedBox(width: 8),
-                Text('Planeta (sección)'),
+                Text('Mundo'),
               ],
             ),
           ),
@@ -523,7 +523,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
   void _showCellOptionsDialog(int row, int col, CellData cellData) {
     final title = cellData.isDeepSpace
         ? 'Espacio profundo'
-        : 'Sección ${cellData.sectionNumber}';
+        : 'Mundo ${cellData.sectionNumber}';
 
     showDialog(
       context: context,
@@ -566,7 +566,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          title: Text(isDeepSpace ? 'Editar espacio profundo' : 'Editar sección'),
+          title: Text(isDeepSpace ? 'Editar espacio profundo' : 'Editar mundo'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -580,7 +580,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
                           keyboardType: TextInputType.number,
                           autofocus: true,
                           decoration: InputDecoration(
-                            labelText: 'Número de sección',
+                            labelText: 'Nº mundo',
                             errorText: errorText,
                           ),
                         ),
@@ -717,7 +717,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('Número de sección'),
+          title: const Text('Nº mundo'),
           content: Row(
             children: [
               Expanded(
@@ -1115,7 +1115,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
 
     if (planet == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sección $sectionNumber no encontrada')),
+        SnackBar(content: Text('Mundo $sectionNumber no encontrado')),
       );
 
       return;

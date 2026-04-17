@@ -69,7 +69,7 @@ void main() {
       await tester.tap(gridCells.first);
       await tester.pumpAndSettle();
 
-      expect(find.text('Planeta (sección)'), findsOneWidget);
+      expect(find.text('Mundo'), findsOneWidget);
       expect(find.text('Espacio profundo'), findsOneWidget);
     });
 
@@ -191,7 +191,7 @@ void main() {
       await tester.tap(gridCells.first);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Planeta (sección)'));
+      await tester.tap(find.text('Mundo'));
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.casino), findsOneWidget);
@@ -207,7 +207,7 @@ void main() {
       await tester.tap(gridCells.first);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Planeta (sección)'));
+      await tester.tap(find.text('Mundo'));
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.casino));
