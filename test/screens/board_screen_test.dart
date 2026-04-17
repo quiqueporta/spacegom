@@ -59,7 +59,7 @@ void main() {
       expect(find.text('2'), findsWidgets);
     });
 
-    testWidgets('al pulsar celda vacía aparece diálogo de tipo de cuadrante', (tester) async {
+    testWidgets('al pulsar celda vacía aparece diálogo de edición con selector de tipo', (tester) async {
       await tester.pumpWidget(buildTestable());
 
       final gridCells = find.descendant(
@@ -69,8 +69,14 @@ void main() {
       await tester.tap(gridCells.first);
       await tester.pumpAndSettle();
 
-      expect(find.text('Mundo'), findsOneWidget);
-      expect(find.text('Espacio profundo'), findsOneWidget);
+      expect(find.text('Editar cuadrante'), findsOneWidget);
+      expect(find.text('Sin asignar'), findsOneWidget);
+
+      await tester.tap(find.byType(DropdownButtonFormField<CellType>));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Mundo'), findsWidgets);
+      expect(find.text('Espacio profundo'), findsWidgets);
     });
 
     testWidgets('tap en fecha llama a onOpenCalendar', (tester) async {
@@ -191,7 +197,9 @@ void main() {
       await tester.tap(gridCells.first);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Mundo'));
+      await tester.tap(find.byType(DropdownButtonFormField<CellType>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mundo').last);
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.casino), findsOneWidget);
@@ -207,13 +215,15 @@ void main() {
       await tester.tap(gridCells.first);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Mundo'));
+      await tester.tap(find.byType(DropdownButtonFormField<CellType>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mundo').last);
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.casino));
       await tester.pump();
 
-      final textField = tester.widget<TextField>(find.byType(TextField));
+      final textField = tester.widget<TextField>(find.byType(TextField).first);
       final text = textField.controller!.text;
       final code = int.parse(text);
       final digits = text.split('').map(int.parse).toList();

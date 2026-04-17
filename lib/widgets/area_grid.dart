@@ -123,7 +123,7 @@ class AreaGrid extends StatelessWidget {
             if (cellData != null && cellData.isDeepSpace)
               ..._buildStarField(row, col, size),
 
-            if (cellData != null && !cellData.isDeepSpace) ...[
+            if (cellData != null && cellData.isWorld) ...[
               Container(
                 width: size * 0.65,
                 height: size * 0.65,

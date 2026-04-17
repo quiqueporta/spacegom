@@ -470,19 +470,13 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
   void _onCellTap(int row, int col) {
     final existing = _currentCells[(row, col)];
 
-    if (existing != null && !existing.isDeepSpace) {
+    if (existing != null && existing.isWorld) {
       _showPlanetDetail(existing.sectionNumber!);
 
       return;
     }
 
-    if (existing != null && existing.isDeepSpace) {
-      _showCellOptionsDialog(row, col, existing);
-
-      return;
-    }
-
-    _showNewCellDialog(row, col);
+    _showEditCellDialog(row, col, existing ?? const CellData());
   }
 
   void _onCellLongPress(int row, int col) {
@@ -493,51 +487,12 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
     _showCellOptionsDialog(row, col, existing);
   }
 
-  void _showNewCellDialog(int row, int col) {
-    showDialog(
-      context: context,
-      builder: (ctx) => SimpleDialog(
-        title: const Text('Tipo de cuadrante'),
-        children: [
-          SimpleDialogOption(
-            onPressed: () {
-              Navigator.pop(ctx);
-              _showSectionDialog(row, col);
-            },
-            child: const Row(
-              children: [
-                Icon(Icons.public, size: 20, color: Color(0xFF58A6FF)),
-                SizedBox(width: 8),
-                Text('Mundo'),
-              ],
-            ),
-          ),
-          SimpleDialogOption(
-            onPressed: () {
-              setState(() {
-                _areaCells.putIfAbsent(_viewingArea, () => {});
-                _areaCells[_viewingArea]![(row, col)] = CellData.deepSpace();
-                _notifyChanged();
-              });
-              Navigator.pop(ctx);
-            },
-            child: const Row(
-              children: [
-                Icon(Icons.auto_awesome, size: 20, color: Color(0xFF30363D)),
-                SizedBox(width: 8),
-                Text('Espacio profundo'),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showCellOptionsDialog(int row, int col, CellData cellData) {
-    final title = cellData.isDeepSpace
-        ? 'Espacio profundo'
-        : 'Mundo ${cellData.sectionNumber}';
+    final title = switch (cellData.type) {
+      CellType.world => 'Mundo ${cellData.sectionNumber}',
+      CellType.deepSpace => 'Espacio profundo',
+      CellType.unassigned => 'Cuadrante sin asignar',
+    };
 
     showDialog(
       context: context,
@@ -547,7 +502,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
           SimpleDialogOption(
             onPressed: () {
               Navigator.pop(ctx);
-              _showEditSectionDialog(row, col, cellData);
+              _showEditCellDialog(row, col, cellData);
             },
             child: const Text('Editar'),
           ),
@@ -566,14 +521,14 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
     );
   }
 
-  void _showEditSectionDialog(int row, int col, CellData cellData) {
+  void _showEditCellDialog(int row, int col, CellData cellData) {
     final controller = TextEditingController(
       text: cellData.sectionNumber != null ? '${cellData.sectionNumber}' : '',
     );
     final megacorpController = TextEditingController(text: cellData.megacorporation);
     final notesController = TextEditingController(text: cellData.notes);
     var pirates = cellData.pirates;
-    var isDeepSpace = cellData.isDeepSpace;
+    var type = cellData.type;
     String? errorText;
     var missionValue = cellData.sectionNumber != null
         ? (_missionsForSection(cellData.sectionNumber!) ?? 0)
@@ -583,19 +538,59 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          title: Text(isDeepSpace ? 'Editar espacio profundo' : 'Editar mundo'),
+          title: const Text('Editar cuadrante'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (!isDeepSpace) ...[
+                DropdownButtonFormField<CellType>(
+                  initialValue: type,
+                  isExpanded: true,
+                  decoration: const InputDecoration(labelText: 'Tipo'),
+                  items: const [
+                    DropdownMenuItem(
+                      value: CellType.unassigned,
+                      child: Row(children: [
+                        Icon(Icons.help_outline, size: 16),
+                        SizedBox(width: 8),
+                        Text('Sin asignar'),
+                      ]),
+                    ),
+                    DropdownMenuItem(
+                      value: CellType.world,
+                      child: Row(children: [
+                        Icon(Icons.public, size: 16),
+                        SizedBox(width: 8),
+                        Text('Mundo'),
+                      ]),
+                    ),
+                    DropdownMenuItem(
+                      value: CellType.deepSpace,
+                      child: Row(children: [
+                        Icon(Icons.auto_awesome, size: 16),
+                        SizedBox(width: 8),
+                        Text('Espacio profundo'),
+                      ]),
+                    ),
+                  ],
+                  onChanged: (v) => setDialogState(() {
+                    if (v != null) {
+                      type = v;
+                      errorText = null;
+                    }
+                  }),
+                ),
+
+                const SizedBox(height: 12),
+
+                if (type == CellType.world) ...[
                   Row(
                     children: [
                       Expanded(
                         child: TextField(
                           controller: controller,
                           keyboardType: TextInputType.number,
-                          autofocus: true,
+                          autofocus: cellData.sectionNumber == null,
                           decoration: InputDecoration(
                             labelText: 'Nº mundo',
                             errorText: errorText,
@@ -651,7 +646,7 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
                   ],
                 ),
 
-                if (!isDeepSpace) ...[
+                if (type == CellType.world) ...[
                   const SizedBox(height: 12),
 
                   Row(
@@ -698,9 +693,12 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
             ),
             TextButton(
               onPressed: () {
-                if (!isDeepSpace) {
+                if (type == CellType.world) {
                   final number = int.tryParse(controller.text);
-                  if (number == null) return;
+                  if (number == null) {
+                    setDialogState(() => errorText = 'Introduce un número válido');
+                    return;
+                  }
 
                   final existingArea = _findExistingSection(number);
                   if (existingArea != null && number != cellData.sectionNumber) {
@@ -715,21 +713,19 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
                 setState(() {
                   _areaCells.putIfAbsent(_viewingArea, () => {});
 
-                  if (isDeepSpace) {
-                    _areaCells[_viewingArea]![(row, col)] = CellData.deepSpace(
-                      pirates: pirates,
-                      megacorporation: megacorpController.text.trim(),
-                      notes: notesController.text.trim(),
-                    );
-                  } else {
+                  final megacorp = megacorpController.text.trim();
+                  final notes = notesController.text.trim();
+
+                  if (type == CellType.world) {
                     final number = int.tryParse(controller.text)!;
                     final sectionChanged = number != cellData.sectionNumber;
 
                     _areaCells[_viewingArea]![(row, col)] = CellData(
+                      type: CellType.world,
                       sectionNumber: number,
                       pirates: pirates,
-                      megacorporation: megacorpController.text.trim(),
-                      notes: notesController.text.trim(),
+                      megacorporation: megacorp,
+                      notes: notes,
                     );
 
                     if (sectionChanged) {
@@ -737,6 +733,17 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
                       _seedMissionsForSection(number);
                     } else {
                       _customMissions[number] = missionValue;
+                    }
+                  } else {
+                    _areaCells[_viewingArea]![(row, col)] = CellData(
+                      type: type,
+                      pirates: pirates,
+                      megacorporation: megacorp,
+                      notes: notes,
+                    );
+
+                    if (cellData.isWorld && cellData.sectionNumber != null) {
+                      _customMissions.remove(cellData.sectionNumber);
                     }
                   }
 
@@ -761,79 +768,6 @@ class _BoardScreenState extends State<BoardScreen> with AutomaticKeepAliveClient
     }
 
     return null;
-  }
-
-  void _showSectionDialog(int row, int col) {
-    final controller = TextEditingController();
-    String? errorText;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('Nº mundo'),
-          content: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  keyboardType: TextInputType.number,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    hintText: 'Ej: 256',
-                    errorText: errorText,
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 8),
-
-              IconButton(
-                icon: const Icon(Icons.casino),
-                tooltip: 'Tirada aleatoria (3d6)',
-                onPressed: () {
-                  final code = PlanetDatabase.randomSectionNumber();
-                  controller.text = '$code';
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                final number = int.tryParse(controller.text);
-                if (number == null) return;
-
-                final existingArea = _findExistingSection(number);
-                if (existingArea != null) {
-                  setDialogState(() {
-                    errorText = 'Este mundo ya está en el área $existingArea';
-                  });
-
-                  return;
-                }
-
-                setState(() {
-                  _areaCells.putIfAbsent(_viewingArea, () => {});
-                  _areaCells[_viewingArea]![(row, col)] = CellData(
-                    sectionNumber: number,
-                  );
-                  _seedMissionsForSection(number);
-                  _notifyChanged();
-                });
-
-                Navigator.pop(ctx);
-              },
-              child: const Text('Aceptar'),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   static const _productCodes = ['INDU', 'BASI', 'ALIM', 'MADE', 'AGUA', 'MICO', 'MIRA', 'MIPR', 'PAVA', 'A', 'AE', 'AEI', 'COM'];
