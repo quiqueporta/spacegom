@@ -21,6 +21,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   late int _currentYear;
   late Map<int, Set<(int, int)>> _markedDays;
   late Map<int, List<SpecialDate>> _specialDates;
+  final Map<int, GlobalKey> _monthKeys = {
+    for (var m = 1; m <= 12; m++) m: GlobalKey(),
+  };
 
   @override
   void initState() {
@@ -32,6 +35,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
     _specialDates = widget.calendar.specialDates.map(
       (k, v) => MapEntry(k, List.from(v)),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToCurrentMonth());
+  }
+
+  void _scrollToCurrentMonth() {
+    final currentMonth = _currentDate.$1;
+    if (currentMonth == 1) return;
+
+    final key = _monthKeys[currentMonth];
+    final context = key?.currentContext;
+    if (context == null) return;
+
+    Scrollable.ensureVisible(
+      context,
+      duration: const Duration(milliseconds: 300),
+      alignment: 0.1,
     );
   }
 
@@ -70,6 +90,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
             for (var month = 1; month <= 12; month++) ...[
               MonthGrid(
+                key: _monthKeys[month],
                 month: month,
                 markedDays: _markedDaysForMonth(month),
                 eventLetters: _eventLettersForMonth(month),
