@@ -1,7 +1,7 @@
 # Spacegom Companion
 
 ![Tests](https://github.com/quiqueporta/spacegom/actions/workflows/tests.yml/badge.svg)
-![Version](https://img.shields.io/badge/version-1.8.0-blue)
+![Version](https://img.shields.io/badge/version-1.9.0-blue)
 
 <p align="center">
   <img src="spacegom_book.png" alt="Spacegom - Tomo Completo" />

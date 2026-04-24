@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.0
+
+- Nuevo icono de la app: cohete en blanco y negro (sustituye al logo de Flutter)
+- Al abrir el calendario hace scroll automático hasta el mes del día actual
+
 ## 1.8.0
 
 - Diálogo unificado "Editar cuadrante" con selector de tipo (Sin asignar / Mundo / Espacio profundo); las celdas sin asignar ahora pueden tener megacorporación, piratas y notas
